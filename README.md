@@ -1,7 +1,7 @@
 # 3D-UPPE
 This is the shared package to simulate, with MATLAB, pulse propagation in bulk crystal/gas/free space with 3D-UPPE.
 
-It is useful for simulating simulating solid-based or gas-filled multipass cell or multiplate compressor, etc.
+It is useful for simulating solid-based or gas-filled multipass cell or multiplate compressor, etc.
 
 ## Capabilities:
 1. It solves the pulse propagation with a nested [RK4IP](http://www.sciencedirect.com/science/article/pii/S0010465512004262) (Runge-Kutta under the interaction picture). Please find details in the 3D-UPPE's readme.
