@@ -49,7 +49,7 @@ Source: "UPPE3D/Examples/Periodically-layered Kerr medium (PLKM) compressor"
 - **Self focusing (non-waveguide)**  
 Pulse with high peak power will experience self-focusing in a Kerr medium with a positive nonlinear refractive index. The medium effectively acts as a lens, reducing the propagating beam size.  
 Source: "UPPE3D/Examples/Tutorial/2. pulsed/Self-focusing (non-waveguide)"  
-<img src="Readme_images/self_focusing_r.gif" width=45%>
+<img src="Readme_images/self-focusing_r.gif" width=45%>
 
 ## Notes:
 There is a `readme.pdf` in the `Documentations/` folder of **UPPE3D**. Please find details of how to use this package in it. However, the fastest way to learn how to use this package is to learn from the examples in the `Examples/` folder.
