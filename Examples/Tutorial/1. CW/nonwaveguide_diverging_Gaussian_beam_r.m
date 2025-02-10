@@ -113,8 +113,8 @@ set(gca,'fontsize',20);
 title('Initial k space');
 % Plot the 2D field with pcolor
 radialPcolor(kr/1e3,abs(A0_H).^2);
-xlabel('k_r (2\pi/mm)');
-ylabel('k_r (2\pi/mm)');
+xlabel('k_x (2\pi/mm)');
+ylabel('k_y (2\pi/mm)');
 set(gca,'fontsize',20);
 daspect([1 1 1]); % make aspect ratio = 1
 title('Initial k space');
@@ -159,8 +159,8 @@ set(gca,'fontsize',20);
 title('Final k space');
 % Plot the 2D field with pcolor
 radialPcolor(kr/1e3,abs(A_H).^2);
-xlabel('k_r (2\pi/mm)');
-ylabel('k_r (2\pi/mm)');
+xlabel('k_x (2\pi/mm)');
+ylabel('k_y (2\pi/mm)');
 set(gca,'fontsize',20);
 daspect([1 1 1]); % make aspect ratio = 1
 title('Final k space');

@@ -123,7 +123,7 @@ num_to_plot = num_save;
 fig = plotter_r([],...
                 prop_output.field,...
                 z_all(1:num_to_plot),MFD_all(1:num_to_plot),...
-                Nt,r,lambda);
+                r,lambda);
 
 % Animation
 Frame(:,1) = animator_r(Frame(:,1),...
@@ -165,8 +165,8 @@ for i = 1+(1:num_plates*2)
     title('Initial k space');
     % Plot the 2D field with pcolor
     fig_k2 = radialPcolor(kr/1e3,abs(A0_H).^2);
-    xlabel('k_r (2\pi/mm)');
-    ylabel('k_r (2\pi/mm)');
+    xlabel('k_x (2\pi/mm)');
+    ylabel('k_y (2\pi/mm)');
     set(gca,'fontsize',20);
     daspect([1 1 1]); % make aspect ratio = 1
     title('Initial k space');
@@ -187,7 +187,7 @@ for i = 1+(1:num_plates*2)
     fig = plotter_r(fig,... ...
                     prop_output.field,...
                     z_all(1:num_to_plot),MFD_all(1:num_to_plot),...
-                    Nt,r,lambda);
+                    r,lambda);
 
     % Animation
     Frame(:,i) = animator_r(Frame(:,i),...

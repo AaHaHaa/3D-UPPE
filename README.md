@@ -44,12 +44,12 @@ Source: "UPPE3D/Examples/Multipass cell/Gas-filled MPC/Ar"
 [Periodically-layered medium](https://doi.org/10.1364/OL.539381) in air can be a waveguide in nonlinear conditions.  
 It acts as a discrete "nonlinear" waveguide with interleaving media of low (e.g., air) and high (e.g., thin glass) nonlinear refractive indices. Thin glass induces nonlinear self-focusing and air introduces diffraction. This artificially-contructed waveguide nonlinearly broadens the pulse, introducing self-phase modulation that can be compensated with a dechirper. This results in a temporally-compressed pulse. Typical compression factor is around 5.  
 Source: "UPPE3D/Examples/Periodically-layered Kerr medium (PLKM) compressor"  
-<img src="Readme_images/PLKM.gif" width=45%>
+<img src="Readme_images/PLKM.gif" width=45%><img src="Readme_images/PLKM_dechirped.jpg" width=45%>
 
 - **Self focusing (non-waveguide)**  
 Pulse with high peak power will experience self-focusing in a Kerr medium with a positive nonlinear refractive index. The medium effectively acts as a lens, reducing the propagating beam size.  
 Source: "UPPE3D/Examples/Tutorial/2. pulsed/Self-focusing (non-waveguide)"  
-<img src="Readme_images/self_focusing.gif" width=45%>
+<img src="Readme_images/self_focusing_r.gif" width=45%>
 
 ## Notes:
 There is a `readme.pdf` in the `Documentations/` folder of **UPPE3D**. Please find details of how to use this package in it. However, the fastest way to learn how to use this package is to learn from the examples in the `Examples/` folder.

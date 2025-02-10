@@ -21,10 +21,12 @@ for j = 1:size(A,3)
     end
 
     subplot(2,2,1);
-    A_spatial = A(Nt/2,:,j);
-    plot(r*1e6,abs(A_spatial.').^2/max(abs(A_spatial).^2),'linewidth',2,'Color','b');
-    xlabel('r (\mum)');
-    xlim([0,1]*1e2);
+    % Plot the 2D field with pcolor
+    radialPcolor(r*1e6,abs(squeeze(A(floor(Nt/2)+1,:,j))).^2,fig);
+    xlabel('x (\mum)');
+    xlim([-100,100]);
+    ylim([-100,100]);
+    daspect([1 1 1]); % make aspect ratio = 1
 
     subplot(2,2,2);
     plot(z(1:j)*1e2,MFD(1:j),'Color','k','linewidth',2);

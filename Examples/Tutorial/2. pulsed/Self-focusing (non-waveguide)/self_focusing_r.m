@@ -37,7 +37,7 @@ sim.lambda0 = 1030e-9; % the center wavelength
 sim.gpuDevice.Index = 1;
 
 fiber.L0 = 1e-2;
-num_save = 10;
+num_save = 50;
 sim.save_period = fiber.L0/num_save;
 
 % Load default parameters like
