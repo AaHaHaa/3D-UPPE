@@ -40,13 +40,13 @@ Below is an Ar-filled multipass cell that compresses a 210-fs pulse to 35 fs (de
 Source: "UPPE3D/Examples/Multipass cell/Gas-filled MPC/Ar"  
 <img src="Readme_images/MPC_r.gif" width=45%><img src="Readme_images/MPC_dechirped.jpg" width=45%>
 
-- **Periodically-layered Kerr medium (non-waveguide)**  
+- **Periodically-layered Kerr medium**  
 [Periodically-layered medium](https://doi.org/10.1364/OL.539381) in air can be a waveguide in nonlinear conditions.  
 It acts as a discrete "nonlinear" waveguide with interleaving media of low (e.g., air) and high (e.g., thin glass) nonlinear refractive indices. Thin glass induces nonlinear self-focusing and air introduces diffraction. This artificially-contructed waveguide nonlinearly broadens the pulse, introducing self-phase modulation that can be compensated with a dechirper. This results in a temporally-compressed pulse. Typical compression factor is around 5.  
 Source: "UPPE3D/Examples/Periodically-layered Kerr medium (PLKM) compressor"  
 <img src="Readme_images/PLKM_r.gif" width=45%><img src="Readme_images/PLKM_dechirped.jpg" width=45%>
 
-- **Self focusing (non-waveguide)**  
+- **Self focusing**  
 Pulse with high peak power will experience self-focusing in a Kerr medium with a positive nonlinear refractive index. The medium effectively acts as a lens, reducing the propagating beam size.  
 Source: "UPPE3D/Examples/Tutorial/2. pulsed/Self-focusing (non-waveguide)"  
 <img src="Readme_images/self-focusing_r.gif" width=45%>
