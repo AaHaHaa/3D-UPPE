@@ -25,7 +25,7 @@ function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, N
 
 [Nt,Np] = size(Et,[1,4]);
 if Np ~= 1 || ellipticity ~= 0
-    error('Photoionization model works only for linearly polarized single mode.');
+    error('Photoionization model works only for linearly polarized fields.');
 end
 if isempty(l) || l>1 % l is implemented with 0 or 1 for now
     error('Current material isn''t supported yet.');
