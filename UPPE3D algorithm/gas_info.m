@@ -77,7 +77,12 @@ switch gas.material
         % pressure-induced absorption
         Raman_absorption = read_absorption(gas.material,wavelength,eta);
         n_gas = n_gas + 1i*Raman_absorption./(2*pi./wavelength);
-    case {'Ar','Ne','He'}
+    case 'Ar'
+        n_from_Sellmeier = @(lambda) sum(Sellmeier_terms(lambda,a,b),2) + 1;
+        
+        permittivity_r = n_from_Sellmeier(wavelength*1e6).^2;
+        n_gas = sqrt((permittivity_r - 1)*eta + 1); % refractive index of the gas
+    case {'Ne','He'}
         n_from_Sellmeier = @(lambda) sqrt(1+sum(Sellmeier_terms(lambda,a,b),2));
         
         permittivity_r = n_from_Sellmeier(wavelength*1e6).^2;
