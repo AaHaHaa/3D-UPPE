@@ -69,6 +69,8 @@ gas.temperature = 288; % K
 gas.pressure = 10e5; % Pa
 gas.material = 'N2';
 
+sim.photoionization_model = true; % enable photoionization
+
 % Load parameters based on the configured parameters
 %
 % gas.Ng - 1/m^3; gas number density

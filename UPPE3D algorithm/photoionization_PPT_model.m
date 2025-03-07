@@ -9,7 +9,7 @@ function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, N
 %   
 % Input:
 %
-%   Et: (Nt,1); the electric field under the time domain
+%   Et: (Nt,...); the electric field in the time domain
 %   ionization_energy: scalar (J)
 %   f0: center frequency of the frequency window
 %   dt: scalar (ps)
@@ -41,11 +41,11 @@ conv_length = Nk + Nt - 1;
 smooth_kernel = F_op.Ff(smooth_kernel,conv_length);
 pulse_phase = F_op.Ff(pulse_phase,conv_length);
 pulse_phase = F_op.iFf(pulse_phase.*smooth_kernel,[]);
-pulse_phase = real(pulse_phase(floor(Nk/2)+1 : end-floor(Nk/2),:));
+pulse_phase = real(pulse_phase(floor(Nk/2) : end-floor(Nk/2),:));
 % conv() works for only a single-column vector
 %pulse_phase = conv(pulse_phase,ones(floor(Nt/100),1)/floor(Nt/100),'same'); 
 omega_pulse = -(pulse_phase(3:end,:)-pulse_phase(1:end-2,:))/(2*dt)+2*pi*f0; % THz; I use "central difference" to calculate the slope here
-omega_pulse = [omega_pulse(1,:);omega_pulse;omega_pulse(end,:)]*1e12; % Hz
+omega_pulse = cat(1,omega_pulse(1,:),omega_pulse,omega_pulse(end,:))*1e12; % Hz
 
 me = 9.1093837e-31; % kg
 e = 1.60217663e-19; % Coulomb
