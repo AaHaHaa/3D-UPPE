@@ -25,7 +25,7 @@ function output = build_MMgaussian(tfwhm, time_window, total_energy, num_modes, 
 numvarargs = length(varargin);
 if numvarargs > 4
     error('build_MMgaussian:TooManyInputs', ...
-          'It takes only at most 4 optional inputs');
+          'It takes only at most 4 optional inputs.');
 end
 
 % Set defaults for optional inputs

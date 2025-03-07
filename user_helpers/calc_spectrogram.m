@@ -1,4 +1,4 @@
-function [psd,t_spectrogram,f_spectrogram,fig,ax,cb] = calc_spectrogram(t,f,field,varargin)
+function varargout = calc_spectrogram(t,f,field,varargin)
 %CALC_SPECTROGRAM 
 % This code computes the spectrogram with fine resolution in both the time 
 % and frequency domain of the input field with the convention of Fourier 
@@ -429,6 +429,16 @@ if plot_yes
     end
     
     ax = [ax;ax2;ax3];
+end
+
+if nargout ~= 0
+    if plot_yes % export figure-related variables too
+        varargout = {psd,t_spectrogram,f_spectrogram,fig,ax,cb};
+    else
+        varargout = {psd,t_spectrogram,f_spectrogram};
+    end
+else
+    varargout = {};
 end
 
 end

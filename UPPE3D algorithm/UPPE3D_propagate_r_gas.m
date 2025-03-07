@@ -35,6 +35,15 @@ else
 end
 
 %% Check the validity of input parameters
+if sim.gpu_yes
+    try
+        gpuDevice;
+    catch
+        error('UPPE_propagate_r_gas:GPUError',...
+              'No GPU is detected. Please set "sim.gpu_yes=false".');
+    end
+end
+
 if sim.save_period == 0
     sim.save_period = fiber.L0;
 end
