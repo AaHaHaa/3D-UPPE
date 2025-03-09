@@ -59,3 +59,5 @@ I'm Yi-Hao Chen, the author of the code and from Frank Wise's group at Cornell A
 ## History:
 * 2/20/2025:<br>
 Ar refractive index was wrong! I fixed it.
+* 3/9/2025:<br>
+Fixed the photoionization bug.

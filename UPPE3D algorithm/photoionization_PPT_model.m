@@ -102,6 +102,12 @@ end
 W(I<max(I(:))/1e4) = 0; % avoid non-negligible W when there is no or weak field due to numerical precision error
 
 ne = Ng*cumsum(W,1)*(dt*1e-12);
+if max(ne(:))/Ng > 1e-2
+    error('photoionization_PPT_model:neError',...
+          ['Ion density is too high.\n',...
+           'Current implementation supports only perturbative ionization.\n',...
+           'Please reduce the peak power or anything that reduces the ionization effect.']);
+end
 % Below is the more accurate version with integrating factor.
 % It's important only when relative_ne approaches the gas number density, Ng.
 %integrating_factor = exp(cumsum(W)*(dt*1e-12));

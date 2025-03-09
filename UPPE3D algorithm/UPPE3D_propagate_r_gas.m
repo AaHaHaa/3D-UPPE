@@ -181,11 +181,11 @@ if Nt == 1 % CW case
     sim.photoionization_model = false;
 end
 c = 299792458;
-prefactor_prefactor = (1i/2./kc.*k0.^2);
 permittivity0 = 8.8541878176e-12; % F/m
-prefactor = {1 + sim.FHATHA.kr.^2/2./kc.^2,... % correction factor for using kc as the denominator in nonlinear computations (in k-space)
-             prefactor_prefactor.*(2*fiber.n.*ifftshift(fiber.n2,1)/3),... % nonlinear electronic prefactor (in real-xy space)
-             prefactor_prefactor./(permittivity0^2*fiber.n*c)}; % nonlinear Raman prefactor (in real-xy space)
+prefactor_prefactor = (1i/2./kc.*k0.^2/permittivity0);
+prefactor = {1 + sim.FHATHA.kr.^2/2./kc.^2,... % correction factor for using kc as the denominator in nonlinear computations (in k-space). Note that all other nonlinear operators are in real space, so it cannot be combined into them here. This is in k-space, so I save it here and will apply it after the nonlinear term is transformed into the k-space.
+             prefactor_prefactor.*(permittivity0*2*fiber.n.*ifftshift(fiber.n2,1)/3),... % nonlinear electronic prefactor (in real-xy space)
+             prefactor_prefactor./(permittivity0*fiber.n*c)}; % nonlinear Raman prefactor (in real-xy space)
 
 % Photoionization prefactor
 if sim.photoionization_model
@@ -249,7 +249,7 @@ save_z = double(0:save_points-1)'*sim.save_period;
 %% Photoionization - erfi() lookup table
 % Because calculating erfi() is slow, it's faster if I create a lookup table and use interp1().
 % The range of input variable for erfi is 0~sqrt(2) only.
-if sim.photoionization_model ~= 0
+if sim.photoionization_model
     n_Am = 10; % the number of summation of Am term in photoionization
     gas_eqn.erfi_x = linspace(0,sqrt(2*(n_Am+1)),1000)';
     gas_eqn.erfi_y = erfi(gas_eqn.erfi_x);
@@ -301,7 +301,7 @@ foutput = struct('z', save_z,...
 if sim.include_Raman && sim.scalar
     foutput.delta_permittivity = delta_permittivity;
 end
-if sim.photoionization_model ~= 0
+if sim.photoionization_model
     foutput.relative_Ne = relative_Ne;
 end
 

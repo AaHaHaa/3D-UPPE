@@ -9,7 +9,7 @@ z = z(:);
 MFD = MFD(:);
 
 plot_wavelength_lim = [1010,1050];
-plot_r_lim = [0,1000];
+plot_r_lim = [0,1100/2];
 
 spectrum = abs(fftshift(ifft(A),1)).^2./lambda.^2; % "./lambda" is to make it into the wavelength domain (not with the correct unit but the correct relative strength; we'll normalize it later)
 

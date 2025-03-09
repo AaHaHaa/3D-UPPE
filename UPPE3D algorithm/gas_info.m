@@ -193,7 +193,7 @@ end
 fiber.n2 = n2*eta; % include the gas-density effect
 
 %% Ionization potential
-if sim.photoionization_model ~= 0
+if sim.photoionization_model
     switch gas.material % from "NIST Chemistry WebBook"
         case 'H2'
             ionization_energy = 15.42593; % eV

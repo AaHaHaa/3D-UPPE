@@ -14,7 +14,7 @@ factor_correct_unit = (Nt*dt)^2/1e3; % to make the spectrum of the correct unit 
 factor = c./lambda.^2; % change the spectrum from frequency domain into wavelength domain
 
 plot_wavelength_lim = [950,1125];
-plot_MFD_lim = [500;2000];
+plot_MFD_lim = [500,2000];
 for j = 1:size(A,3)-1
     if exist('fig','var')
         figure(fig);
@@ -30,7 +30,7 @@ for j = 1:size(A,3)-1
     xlabel('Wavelength (nm)');
     ylabel('r (\mum)');
     xlim(plot_wavelength_lim);
-    ylim([0,plot_MFD_lim(2)]);
+    ylim([0,plot_MFD_lim(2)/2]);
 
     subplot(2,2,2);
     plot(plate_z(1)*1e2*[1;1],plot_MFD_lim,'Color','b','linewidth',1.5);

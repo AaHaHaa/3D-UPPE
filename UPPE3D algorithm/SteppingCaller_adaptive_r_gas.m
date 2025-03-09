@@ -22,7 +22,7 @@ if sim.include_Raman && sim.scalar
 else
     delta_permittivity = []; % dummay variable for output
 end
-if sim.photoionization_model ~= 0
+if sim.photoionization_model
     relative_Ne = zeros(Nt,Nr,save_points); % excited electrons due to photoionization
 else
     relative_Ne = []; % dummy variable for output
@@ -206,7 +206,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
         if sim.include_Raman && sim.scalar
             delta_permittivity(:,:,:,1) = calc_permittivity(sim,gas,gas_eqn,last_E,Nt,F_op);
         end
-        if sim.photoionization_model ~= 0
+        if sim.photoionization_model
             E_out_ii = F_op.iFk(F_op.iFf(last_E,[]),true);
             relative_Ne(:,:,1) = calc_Ne(E_out_ii, dt, gas, gas_eqn, sim, F_op);
         end
@@ -225,7 +225,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
         if sim.include_Raman && sim.scalar
             delta_permittivity(:,:,:,save_i) = calc_permittivity(sim,gas,gas_eqn,last_E,Nt,F_op);
         end
-        if sim.photoionization_model ~= 0
+        if sim.photoionization_model
             relative_Ne(:,:,save_i) = calc_Ne(E_out_ii, dt, gas, gas_eqn, sim, F_op);
         end
 

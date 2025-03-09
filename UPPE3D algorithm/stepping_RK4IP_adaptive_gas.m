@@ -150,8 +150,8 @@ function dEdz_wk = N_op(E_wk,...
                         dt)
 %N_op Calculate dEdz_wk
 
+E_tr = F_op.iFk(F_op.iFf(E_wk,[]),sim.FHATHA.energy_restoration);
 if any(prefactor{2}(:)) && size(E_wk,1) ~= 1 % Compute the nonlinearity only when n2 isn't zero and is not CW (CW has Nt = 1)
-    E_tr = F_op.iFk(F_op.iFf(E_wk,[]),sim.FHATHA.energy_restoration);
     E_tr_wNoise = E_tr + E_tr_noise;
 
     % Kerr term
@@ -230,25 +230,29 @@ if any(prefactor{2}(:)) && size(E_wk,1) ~= 1 % Compute the nonlinearity only whe
     else
         nonlinear_tr = prefactor{2}.*F_op.Ff(Kerr,[]);
     end
-
-    if sim.photoionization_model
-        [Ne,DNeDt] = photoionization_PPT_model(E_tr, gas.ionization.energy, sim.f0, dt, gas.Ng,...
-                                               gas.ionization.l, gas.ionization.Z,...
-                                               gas_eqn.erfi_x, gas_eqn.erfi_y,...
-                                               sim.ellipticity,...
-                                               F_op);
-        
-        inverse_E2 = abs(E_tr).^2;
-        inverse_E2(inverse_E2<max(inverse_E2(:))/1e5) = max(inverse_E2(:))/1e5;
-        nonlinear_photoionization = prefactor{4}.*F_op.Ff(Ne.*E_tr,[]) + prefactor{5}.*F_op.Ff(DNeDt./inverse_E2.*E_tr,[]);
-    else
-        nonlinear_photoionization = 0;
-    end
-
-    % Finish adding the prefactor
-    dEdz_wk = prefactor{1}.*F_op.Fk(nonlinear_tr + nonlinear_photoionization,sim.FHATHA.energy_restoration); % nonlinear polarization
 else
-    dEdz_wk = 0;
+    if sim.gpu_yes
+        nonlinear_tr = zeros(size(E_wk),'gpuArray');
+    else
+        nonlinear_tr = zeros(size(E_wk));
+    end
 end
+
+if sim.photoionization_model
+    [Ne,DNeDt] = photoionization_PPT_model(E_tr, gas.ionization.energy, sim.f0, dt, gas.Ng,...
+                                           gas.ionization.l, gas.ionization.Z,...
+                                           gas_eqn.erfi_x, gas_eqn.erfi_y,...
+                                           sim.ellipticity,...
+                                           F_op);
+    
+    inverse_E2 = abs(E_tr).^2;
+    inverse_E2(inverse_E2<max(inverse_E2(:))/1e5) = max(inverse_E2(:))/1e5;
+    nonlinear_photoionization = prefactor{4}.*F_op.Ff(Ne.*E_tr,[]) + prefactor{5}.*F_op.Ff(DNeDt./inverse_E2.*E_tr,[]);
+else
+    nonlinear_photoionization = 0;
+end
+
+% Finish adding the prefactor
+dEdz_wk = prefactor{1}.*F_op.Fk(nonlinear_tr + nonlinear_photoionization,sim.FHATHA.energy_restoration); % nonlinear polarization
 
 end
