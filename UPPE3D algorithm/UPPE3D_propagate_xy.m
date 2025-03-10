@@ -105,9 +105,6 @@ end
 sim.damped_window = create_damped_window_xy(Nt,Nx,Ny);
 
 %% Pre-calculate the factor used in 3D-UPPE
-if Nt == 1 % ignore nonlinearity under CW cases
-    fiber.n2 = 0;
-end
 prefactor = {1 + kxy2/2./kc.^2,... % correction factor for using kc as the denominator in nonlinear computations (in k-space)
              (1i/2./kc).*(k0.^2*2.*fiber.n*fiber.n2/3)}; % nonlinear prefactor (in real-xy space)
 
@@ -123,7 +120,7 @@ end
 if ~isfield(fiber,'material')
     fiber.material = 'silica';
 end
-[fiber,haw,hbw] = Raman_model(fiber,sim,Nt,dt);
+[fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
 if ~sim.include_Raman % no Raman
     fr = 0;
 else

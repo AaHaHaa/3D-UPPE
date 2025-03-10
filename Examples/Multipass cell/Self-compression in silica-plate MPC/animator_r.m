@@ -1,6 +1,7 @@
 function Frame = animator_r(Frame,...
                             A,...
                             z,MFD,start_idx,...
+                            num_save,...
                             Nt,dt,r,lambda,...
                             plate_z)
 
@@ -13,8 +14,8 @@ factor_correct_unit = (Nt*dt)^2/1e3; % to make the spectrum of the correct unit 
                                      % "/1e3" is to make pJ into nJ
 factor = c./lambda.^2; % change the spectrum from frequency domain into wavelength domain
 
-plot_wavelength_lim = [1300,1700];
-plot_MFD_lim = [400,800];
+plot_wavelength_lim = [1200,1900];
+plot_MFD_lim = [300,900];
 for j = 1:size(A,3)-1
     if exist('fig','var')
         figure(fig);
@@ -38,13 +39,18 @@ for j = 1:size(A,3)-1
     for i = 2:length(plate_z)
         switch mod(i-1,6)
             case {1,2,4,5}
-                plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','m','linewidth',0.5);
+                %plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','m','linewidth',0.5);
             case {0,3}
                 plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','b','linewidth',1.5);
         end
         hold on;
     end
     plot(z(1:start_idx+j)*1e2,MFD(1:start_idx+j)*1e3,'Color','k','linewidth',2);
+    for i = 1:length(MFD)/num_save
+        if ismember(mod(i-1,6),[2,5])
+            plot(z((i-1)*num_save:i*num_save)*1e2,MFD((i-1)*num_save:i*num_save)*1e3,'Color','r','linewidth',2); % in silica
+        end
+    end
     hold off;
     xlabel('z (cm)');
     ylabel('MFD (\mum)');
@@ -52,11 +58,6 @@ for j = 1:size(A,3)-1
     ylim(plot_MFD_lim);
 
     subplot(2,2,[3,4]);
-    % remove the weak spectral signal from spatial integration
-    multiplication_ratio = 3;
-    max_spectrum = max(spectrum(:));
-    spectrum = spectrum./max_spectrum; % make spectrum from 0-1
-    spectrum = spectrum.^multiplication_ratio*max_spectrum;
     avg_spectrum = 2*pi*trapz(r,spectrum.*r,2); % nJ/nm
     plot(lambda,avg_spectrum,'Color','b','linewidth',2);
     hold on;

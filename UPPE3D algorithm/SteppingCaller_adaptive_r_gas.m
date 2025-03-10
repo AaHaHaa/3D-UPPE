@@ -17,7 +17,7 @@ dt = initial_condition.dt;
 
 save_dz = zeros(save_points,1);
 T_delay_out = zeros(save_points,1);
-if sim.include_Raman && sim.scalar
+if sim.include_Raman && sim.scalar && Nt ~= 1 % non-CW
     delta_permittivity = zeros(Nt,Nr,size(gas_eqn.R_delta_permittivity,2),save_points);
 else
     delta_permittivity = []; % dummay variable for output
@@ -29,7 +29,7 @@ else
 end
 
 % Pulse centering based on the moment of its intensity
-if sim.pulse_centering
+if sim.pulse_centering && Nt ~= 1 % non-CW
     % Center the pulse
     temporal_profile = abs(initial_condition.field).^2;
     temporal_profile(temporal_profile<max(temporal_profile,[],1)/10) = 0;
@@ -151,7 +151,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
     end
 
     % Center the pulse
-    if sim.pulse_centering
+    if sim.pulse_centering && Nt ~= 1 % non-CW
         last_E_in_time = F_op.iFf(last_E,[]);
         temporal_profile = abs(last_E_in_time).^2;
         temporal_profile(temporal_profile<max(temporal_profile,[],1)/10) = 0;
@@ -203,7 +203,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
     % If it's time to save, get the result from the GPU if necessary,
     % transform to the time domain, and save it
     if z == sim.last_dz
-        if sim.include_Raman && sim.scalar
+        if sim.include_Raman && sim.scalar && Nt ~= 1 % non-CW
             delta_permittivity(:,:,:,1) = calc_permittivity(sim,gas,gas_eqn,last_E,Nt,F_op);
         end
         if sim.photoionization_model
@@ -222,7 +222,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
             save_z(save_i) = z;
             E_out(:,:,save_i,:) = E_out_ii;
         end
-        if sim.include_Raman && sim.scalar
+        if sim.include_Raman && sim.scalar && Nt ~= 1 % non-CW
             delta_permittivity(:,:,:,save_i) = calc_permittivity(sim,gas,gas_eqn,last_E,Nt,F_op);
         end
         if sim.photoionization_model
@@ -277,8 +277,13 @@ function delta_permittivity = calc_permittivity(sim,gas,gas_eqn, ...
 
 E_wr = F_op.iFk(E_wk,true);
 
+num_gas = length(gas.material);
 if sim.ellipticity == 0 % linear polarization
-    gas_eqn.R_delta_permittivity(:,1:2:end) = gas_eqn.R_delta_permittivity(:,1:2:end)*4;
+    for gas_i = 1:num_gas
+        if ismember(gas.material{gas_i},{'H2','N2','O2','air','N2O','CO2'}) % including rotational Raman
+            gas_eqn.R_delta_permittivity(:,gas_eqn.cumsum_num_Raman(gas_i)+1) = gas_eqn.R_delta_permittivity(:,gas_eqn.cumsum_num_Raman(gas_i)+1)*4;
+        end
+    end
 end
 
 E_tr_upsampling = F_op.iFf(cat(1,E_wr(1:gas_eqn.n,:,:,:),gas_eqn.upsampling_zeros,E_wr(gas_eqn.n+1:end,:,:,:)),[]);
@@ -323,12 +328,17 @@ end
 % -------------------------------------------------------------------------
 function relative_Ne = calc_Ne(Et, dt, gas, gas_eqn, sim, F_op)
 
-Ne = photoionization_PPT_model(Et, gas.ionization.energy, sim.f0, dt, gas.Ng,...
-                               gas.ionization.l, gas.ionization.Z,...
-                               gas_eqn.erfi_x, gas_eqn.erfi_y,...
-                               sim.ellipticity,...
-                               F_op);
-relative_Ne = Ne/gas.Ng;
+num_gas = length(gas.material);
+Ne = 0; % initialization
+for gas_i = 1:num_gas
+    Ne_i = photoionization_PPT_model(Et, gas.(gas.material{gas_i}).ionization.energy, sim.f0, dt, gas.Ng(gas_i),...
+                                     gas.(gas.material{gas_i}).ionization.l, gas.(gas.material{gas_i}).ionization.Z,...
+                                     gas_eqn.erfi_x, gas_eqn.erfi_y,...
+                                     sim.ellipticity,...
+                                     F_op);
+    Ne = Ne + Ne_i;
+end
+relative_Ne = Ne/sum(gas.Ng);
 
 if sim.gpu_yes
     relative_Ne = gather(relative_Ne);

@@ -49,7 +49,7 @@ for j = 1:size(A,3)-1
     plot(z(1:start_idx+j)*1e2,MFD(1:start_idx+j)*1e3,'Color','k','linewidth',2);
     for i = 1:length(MFD)/num_save
         if ismember(mod(i-2,6),[0,1,3,4])
-            plot(z((i-1)*num_save:i*num_save)*1e2,MFD((i-1)*num_save:i*num_save)*1e3,'Color','r','linewidth',2);
+            plot(z((i-1)*num_save:i*num_save)*1e2,MFD((i-1)*num_save:i*num_save)*1e3,'Color','r','linewidth',2); % in silica
         end
     end
     hold off;

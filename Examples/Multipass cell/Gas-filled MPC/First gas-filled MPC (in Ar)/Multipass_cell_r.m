@@ -50,7 +50,7 @@ lambda = c./(f*1e12)*1e9; % nm
 %% Configure gas parameters for the gas_info().
 gas.temperature = 288; % K
 gas.pressure = 7e5; % Pa
-gas.material = 'Ar';
+gas.material = {'Ar'};
 
 % Load parameters based on the configured parameters
 %

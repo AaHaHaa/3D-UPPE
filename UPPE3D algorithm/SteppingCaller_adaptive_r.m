@@ -17,7 +17,7 @@ save_dz = zeros(save_points,1);
 T_delay_out = zeros(save_points,1);
 
 % Pulse centering based on the moment of its intensity
-if sim.pulse_centering
+if sim.pulse_centering && Nt ~= 1 % non-CW
     % Center the pulse
     temporal_profile = abs(initial_condition.field).^2;
     temporal_profile(temporal_profile<max(temporal_profile,[],1)/10) = 0;
@@ -137,7 +137,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
     end
 
     % Center the pulse
-    if sim.pulse_centering
+    if sim.pulse_centering && Nt ~= 1 % non-CW
         last_E_in_time = F_op.iFf(last_E,[]);
         temporal_profile = abs(last_E_in_time).^2;
         temporal_profile(temporal_profile<max(temporal_profile,[],1)/10) = 0;

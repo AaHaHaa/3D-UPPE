@@ -24,8 +24,8 @@ addpath('../../../Fibers/Single-mode-fiber profile for examples/');
 
 %% Setup temporal/spectral parameters
 Nt = 1; % the number of time points
-time_window = 0.8; % ps; it is meaningless in this code since Nt = 1 (CW case)
-dt = time_window/Nt; % ps
+time_window = 0.8; % ps; not important here due to CW
+dt = time_window/Nt; % ps; not important here due to CW
 
 %% Setup spatial parameters
 Nx = 2^7; % the number of spatial points
@@ -89,8 +89,8 @@ MFR = sqrt(Aeff/pi)*1e6; % um
 % power is retained as the CW power in building the initial profile.
 % However, still ensure that pulse duration is around 5-10x smaller than
 % the time window for correct generation of the CW profile.
-tfwhm = 1; % ps
-total_energy = 1e-3; % nJ
+tfwhm = 1; % ps; determine the peak power, which is average power in CW
+total_energy = 1e-3; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_MMgaussian(tfwhm, time_window, total_energy, 1, Nt);
 initial_condition.field = recompose_into_space(sim.gpu_yes,phi,initial_condition.fields,sim.cuda_dir_path); initial_condition = rmfield(initial_condition,'fields');
 initial_condition.dx = mean(diff(x*1e-6)); initial_condition.dy = initial_condition.dx;

@@ -16,8 +16,8 @@ addpath('../../../UPPE3D algorithm/','../../../user_helpers/');
 
 %% Setup temporal/spectral parameters
 Nt = 1; % the number of time points
-time_window = 10; % ps; it is meaningless in this code since Nt = 1 (CW case)
-dt = time_window/Nt; % ps
+time_window = 10; % ps; not important here due to CW
+dt = time_window/Nt; % ps; not important here due to CW
 
 %% Setup spatial parameters
 Nx = 2^7; % the number of spatial points
@@ -67,8 +67,8 @@ kx = 2*pi*(-Nx/2:Nx/2-1)/spatial_window*1e-3; % 2*pi/mm
 % However, still ensure that pulse duration is around 5-10x smaller than
 % the time window for correct generation of the CW profile.
 MFD0 = 500e-6; % m
-tfwhm = 1; % ps; it is meaningless in this code since Nt = 1 (CW case)
-energy = 1e-3; % nJ
+tfwhm = 1; % ps; determine the peak power, which is average power in CW
+energy = 1e-3; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_3Dgaussian_xy(MFD0, spatial_window, tfwhm, time_window, energy, Nt, Nx);
 
 %% Show initial spaces

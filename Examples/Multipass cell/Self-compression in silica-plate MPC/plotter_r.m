@@ -8,8 +8,8 @@ function fig = plotter_r(fig,...
 z = z(:);
 MFD = MFD(:);
 
-plot_wavelength_lim = [1300,1700];
-plot_r_lim = [0,800/2];
+plot_wavelength_lim = [1200,1900];
+plot_r_lim = [0,900/2];
 
 spectrum = abs(fftshift(ifft(A(:,:,end)),1)).^2./lambda.^2; % "./lambda" is to make it into the wavelength domain (not with the correct unit but the correct relative strength; we'll normalize it later)
 

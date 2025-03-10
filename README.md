@@ -14,6 +14,7 @@ It is useful for simulating solid-based or gas-filled multipass cell or multipla
 10. Support both solid and gas environments.
 11. For gases, it supports both noble and Raman-active gases with the newly-developed vector Raman model [[1]](#references-our-papers).
 12. Support photoionization in gases with the Perelomov-Popov-Terent'ev (PPT) model.
+13. Support both pulsed and CW ($N_t=1$) cases. Full nonlinearity is supported in CW to fast simulate some phenomena, such as high-average-power self-focusing.
 
 ## Fourier-Transform tutorial
 Since I've seen many misuse of Fourier Transform, I wrote [this tutorial](https://doi.org/10.48550/arXiv.2412.20698). Please take a look. Briefly speaking for one misuse, it's necessary to use MATLAB's `ifft` for Fourier Transform into the spectral domain.
@@ -61,3 +62,5 @@ I'm Yi-Hao Chen, the author of the code and from Frank Wise's group at Cornell A
 Ar refractive index was wrong! I fixed it.
 * 3/9/2025:<br>
 Fixed the photoionization bug.
+* 3/10/2025:<br>
+Added full nonlinearity support for CW. In the future, I decide to make the index z-dependent, which is commonly-known as "wave propagation method". However, compared to them, this model will have a full nonlinear support in both solid and gas, as well as supporting pulsed scenarios.

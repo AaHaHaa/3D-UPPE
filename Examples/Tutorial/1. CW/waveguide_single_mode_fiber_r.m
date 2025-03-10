@@ -24,8 +24,8 @@ addpath('../../../Fibers/Single-mode-fiber profile for examples/');
 
 %% Setup temporal/spectral parameters
 Nt = 1; % the number of time points
-time_window = 10; % ps
-dt = time_window/Nt; % ps
+time_window = 10; % ps; not important here due to CW
+dt = time_window/Nt; % ps; not important here due to CW
 
 %% Setup spatial parameters
 % Information for the Hankel transform
@@ -97,8 +97,8 @@ MFR = sqrt(Aeff/pi)*1e6; % um
 % power is retained as the CW power in building the initial profile.
 % However, still ensure that pulse duration is around 5-10x smaller than
 % the time window for correct generation of the CW profile.
-tfwhm = 1; % ps
-total_energy = 1e-3; % nJ
+tfwhm = 1; % ps; determine the peak power, which is average power in CW
+total_energy = 1e-3; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_MMgaussian(tfwhm, time_window, total_energy, 1, Nt);
 initial_condition.field = initial_condition.fields.*phi; initial_condition = rmfield(initial_condition,'fields');
 initial_condition.r = r;

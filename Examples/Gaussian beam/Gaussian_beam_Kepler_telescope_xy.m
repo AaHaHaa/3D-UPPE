@@ -16,8 +16,8 @@ addpath('../../UPPE3D algorithm/','../../user_helpers/');
 
 %% Setup temporal/spectral parameters
 Nt = 1; % the number of time points
-time_window = 10; % ps
-dt = time_window/Nt; % ps
+time_window = 10; % ps; not important here due to CW
+dt = time_window/Nt; % ps; not important here due to CW
 
 %% Setup spatial parameters
 Nx = 2^10; % the number of spatial points
@@ -61,8 +61,8 @@ num_save = 20;
 
 %% Initial condition
 MFD0 = 1e-3; % m
-tfwhm = 1; % ps
-energy = 1e-3; % nJ
+tfwhm = 1; % ps; determine the peak power, which is average power in CW
+energy = 1e-3; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_3Dgaussian_xy(MFD0, spatial_window, tfwhm, time_window, energy, Nt, Nx);
 
 %% Show initial spaces

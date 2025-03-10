@@ -1,5 +1,5 @@
-function [fiber,haw,hbw] = Raman_model(fiber,sim,Nt,dt)
-%RAMAN_MODEL It calculates the Raman response of several solid materials.
+function [fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt)
+%SOLID_RAMAN_MODEL It calculates the Raman response of several solid materials.
 %   Input:
 %       fiber.material: a string; the type of the fiber;
 %                         Currently it supports only silica, chalcogenide(As2S3), and ZBLAN(fluoride) fibers

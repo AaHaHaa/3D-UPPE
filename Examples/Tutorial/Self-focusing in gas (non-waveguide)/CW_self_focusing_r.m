@@ -1,4 +1,4 @@
-% This code simulates self-focusing of a Gaussian pulse in N2.
+% This code simulates self-focusing of a high-power CW Gaussian beam in N2.
 %
 % Gas-filled 3D-UPPE employs the radially-symmetric scheme of the UPPE code.
 
@@ -7,9 +7,9 @@ close all; clearvars;
 addpath('../../../UPPE3D algorithm/','../../../user_helpers/');
 
 %% Setup temporal/spectral parameters
-Nt = 2^10; % the number of time points
-time_window = 5; % ps
-dt = time_window/Nt; % ps
+Nt = 1; % the number of time points
+time_window = 10; % ps; not important here due to CW
+dt = time_window/Nt; % ps; not important here due to CW
 
 %% Setup spatial parameters
 % Information for the Hankel transform
@@ -67,7 +67,7 @@ lambda = c./(f*1e12)*1e9; % nm
 %% Configure gas parameters for the gas_info().
 gas.temperature = 288; % K
 gas.pressure = 10e5; % Pa
-gas.material = 'N2';
+gas.material = {'N2'};
 
 sim.photoionization_model = true; % enable photoionization
 
@@ -86,8 +86,8 @@ gas.N2.V.preR = gas.N2.V.preR*0;
 
 %% Initial condition
 MFD0 = 100e-6; % m
-tfwhm = 1; % ps
-energy = 10e6; % nJ
+tfwhm = 1; % ps; determine the peak power, which is average power in CW
+energy = 10e6; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_3Dgaussian_r(MFD0, tfwhm, time_window, energy, Nt, r);
 
 %% Show initial spaces

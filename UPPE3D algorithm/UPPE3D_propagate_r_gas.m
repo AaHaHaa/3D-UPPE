@@ -56,31 +56,42 @@ else
     num_saves_total = round(num_saves_total);
 end
 
-if sim.include_Raman
+num_gas = length(gas.material);
+if sim.include_Raman && Nt ~= 1 % non-CW
     Fmax = 1/2/dt;
     % Below, only the available Raman (whose preR~=0) are considered.
     % max_Omega and max_T2 are used to determine which Raman model to use (see below).
-    switch gas.material
-        case 'CH4'
-            max_Omega = max(gas.(gas.material).V.omega.*(gas.(gas.material).V.preR~=0));
-            max_T2 = max(gas.(gas.material).V.T2.*(gas.(gas.material).V.preR~=0));
-        case {'H2','N2','O2'}
-            max_Omega = max([gas.(gas.material).R.omega.*(gas.(gas.material).R.preR~=0),...
-                             gas.(gas.material).V.omega.*(gas.(gas.material).V.preR~=0)]);
-            max_T2 = max([gas.(gas.material).R.T2.*(gas.(gas.material).R.preR~=0),...
-                          gas.(gas.material).V.T2.*(gas.(gas.material).V.preR~=0)]);
-        case 'air'
-            max_Omega = max([gas.N2.R.omega.*(gas.N2.R.preR~=0),...
-                             gas.N2.V.omega.*(gas.N2.V.preR~=0),...
-                             gas.O2.R.omega.*(gas.O2.R.preR~=0),...
-                             gas.O2.V.omega.*(gas.O2.V.preR~=0)]);
-            max_T2 = max([gas.N2.R.T2.*(gas.N2.R.preR~=0),...
-                          gas.N2.V.T2.*(gas.N2.V.preR~=0),...
-                          gas.O2.R.T2.*(gas.O2.R.preR~=0),...
-                          gas.O2.V.T2.*(gas.O2.V.preR~=0)]);
-        otherwise
-            max_Omega = 0;
-            max_T2 = 0;
+    max_Omega = 0; % initialization
+    max_T2 = 0; % initialization
+    for gas_i = 1:num_gas
+        switch gas.material{gas_i}
+            case {'N2O','CO2'} % only rotational Raman
+                max_Omega_i = max(gas.(gas.material{gas_i}).R.omega.*(gas.(gas.material{gas_i}).R.preR~=0));
+                max_T2_i = max(gas.(gas.material{gas_i}).R.T2.*(gas.(gas.material{gas_i}).R.preR~=0));
+            case 'CH4' % only vibrational Raman
+                max_Omega_i = max(gas.(gas.material{gas_i}).V.omega.*(gas.(gas.material{gas_i}).V.preR~=0));
+                max_T2_i = max(gas.(gas.material{gas_i}).V.T2.*(gas.(gas.material{gas_i}).V.preR~=0));
+            case {'H2','N2','O2'} % vibrational + rotational Raman
+                max_Omega_i = max([gas.(gas.material{gas_i}).R.omega.*(gas.(gas.material{gas_i}).R.preR~=0),...
+                                   gas.(gas.material{gas_i}).V.omega.*(gas.(gas.material{gas_i}).V.preR~=0)]);
+                max_T2_i = max([gas.(gas.material{gas_i}).R.T2.*(gas.(gas.material{gas_i}).R.preR~=0),...
+                                gas.(gas.material{gas_i}).V.T2.*(gas.(gas.material{gas_i}).V.preR~=0)]);
+            case 'air'
+                max_Omega_i = max([gas.N2.R.omega.*(gas.N2.R.preR~=0),...
+                                   gas.N2.V.omega.*(gas.N2.V.preR~=0),...
+                                   gas.O2.R.omega.*(gas.O2.R.preR~=0),...
+                                   gas.O2.V.omega.*(gas.O2.V.preR~=0)]);
+                max_T2_i = max([gas.N2.R.T2.*(gas.N2.R.preR~=0),...
+                                gas.N2.V.T2.*(gas.N2.V.preR~=0),...
+                                gas.O2.R.T2.*(gas.O2.R.preR~=0),...
+                                gas.O2.V.T2.*(gas.O2.V.preR~=0)]);
+            otherwise
+                max_Omega_i = 0;
+                max_T2_i = 0;
+        end
+
+        max_Omega = max(max_Omega,max_Omega_i);
+        max_T2 = max(max_T2,max_T2_i);
     end
     
     % Check the frequency window
@@ -177,8 +188,7 @@ sim.damped_window = create_damped_window_r(Nt,r);
 
 %% Pre-calculate the factor used in 3D-UPPE
 if Nt == 1 % CW case
-    fiber.n2 = 0;
-    sim.photoionization_model = false;
+    sim.photoionization_model = false; % photoionization isn't implemented for CW yet
 end
 c = 299792458;
 permittivity0 = 8.8541878176e-12; % F/m
@@ -231,10 +241,6 @@ end
                                 prefactor);
 
 %% Set up some parameters for the gas Raman generation equations
-if Nt == 1 % ignore Raman scattering under CW cases
-    sim.include_Raman = false;
-end
-
 % gas_eqn is a container of useful values that will be continuously used during propagation.
 [Raw,Rbw,...
  gas_eqn] = Raman_model_for_UPPE_constant_pressure(sim,gas,Nt,...

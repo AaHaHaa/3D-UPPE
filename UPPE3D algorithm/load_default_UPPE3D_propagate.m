@@ -229,6 +229,9 @@ default_sim.adaptive_dz.threshold = 1e-6; % the threshold of the RK4IP part in t
 default_sim.gpu_yes = true;
 default_sim.include_Raman = true; % consider the Raman
 
+% FHATHA
+default_sim.FHATHA.energy_restoration = false;
+
 % Others
 default_sim.photoionization_model = false; % don't consider photoionization if inside a gas
 default_sim.pulse_centering = true; % center the pulse according to the time window

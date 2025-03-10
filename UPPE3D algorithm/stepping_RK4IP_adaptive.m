@@ -123,7 +123,7 @@ function dEdz_wk = N_op(E_wk,...
                         r)
 %N_op Calculate dEdz_wk
 
-if any(prefactor{2}(:)) && size(E_wk,1) ~= 1 % Compute the nonlinearity only when n2 isn't zero and is not CW (CW has Nt = 1)
+if any(prefactor{2}(:)) % Compute the nonlinearity only when n2 isn't zero
     E_tr = F_op.iFk(F_op.iFf(E_wk,[]),sim.FHATHA.energy_restoration);
     E_tr_wNoise = E_tr + E_tr_noise;
 
