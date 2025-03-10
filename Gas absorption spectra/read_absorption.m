@@ -4,7 +4,7 @@ function absorption = read_absorption(material,lambda,gas_density)
 % electron distribution resulting in IR-active Raman absorption.
 %
 % Input:
-%   material: 'H2','N2','O2','air'
+%   material: 'H2','D2','N2','O2','air'
 %   lambda: wavelength (m)
 %   gas_density: gas density in amagat
 
@@ -30,6 +30,13 @@ switch material
         
         wavenumber_raw = [dataArray_rot.wavenumber;dataArray_vib.wavenumber]; % cm^(-1)
         absorption_raw = [dataArray_rot.absorption;dataArray_vib.absorption]; % cm^(-1)*amagat^(-2)
+        
+        absorption_raw = absorption_raw*gas_density^2;
+    case 'D2'
+        dataArray = load('D2_Raman_absorption_from_collision.mat');
+        
+        wavenumber_raw = [dataArray.wavenumber]; % cm^(-1)
+        absorption_raw = [dataArray.absorption]; % cm^(-1)*amagat^(-2)
         
         absorption_raw = absorption_raw*gas_density^2;
     case 'N2'
@@ -74,6 +81,9 @@ switch material
         wavenumber_raw = sort(unique([wavenumber_raw_O2;wavenumber_raw_N2]));
         absorption_raw = interp1(wavenumber_raw_N2,absorption_raw_N2,wavenumber_raw,'pchip')*0.8 + ...
                          interp1(wavenumber_raw_O2,absorption_raw_O2,wavenumber_raw,'pchip')*0.2;
+end
+if wavenumber_raw(1) == 0
+    wavenumber_raw(1) = 1; % cm^(-1)
 end
 
 %% Defining the raw data (from the file)
