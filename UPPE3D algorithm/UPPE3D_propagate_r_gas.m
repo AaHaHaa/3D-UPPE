@@ -204,7 +204,7 @@ if sim.photoionization_model
 
     prefactor = [prefactor,...
                  {prefactor_prefactor.*(-e^2/me./(omega*1e12).^2),... % ionization-related loss
-                  prefactor_prefactor.*(1i*gas.ionization.energy*permittivity0*fiber.n*c./(omega*1e12))}]; % ionization-related phase contribution
+                  prefactor_prefactor.*(1i*permittivity0*fiber.n*c./(omega*1e12))}]; % ionization-related phase contribution
 end
 
 if sim.gpu_yes

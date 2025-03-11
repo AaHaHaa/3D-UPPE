@@ -1,6 +1,10 @@
 % This code simulates self-focusing of a high-power CW Gaussian beam in N2.
 %
 % Gas-filled 3D-UPPE employs the radially-symmetric scheme of the UPPE code.
+%
+% Note that photoionization is implemented only for pulsed simulations, so
+% it's not enabled here. It's thus not sure if the power is too high to
+% avoid ionization.
 
 close all; clearvars;
 
@@ -68,8 +72,6 @@ lambda = c./(f*1e12)*1e9; % nm
 gas.temperature = 288; % K
 gas.pressure = 10e5; % Pa
 gas.material = {'N2'};
-
-sim.photoionization_model = true; % enable photoionization
 
 % Load parameters based on the configured parameters
 %
@@ -186,6 +188,11 @@ plot(prop_output.z,optical_energy,'linewidth',2,'Color','b');
 xlabel('Propagation distance (m)');
 ylabel('Power (nJ)');
 set(gca,'fontsize',20);
+
+% Plot spatial evolution
+plot_spatial_evolution_r(r*1e6,prop_output.z,squeeze(abs(prop_output.field(floor(Nt/2)+1,:,:)).^2));
+ylabel('X (\mum)');
+ylim([-100,100]);
 
 % Movie
 Frame = animator_r(prop_output.field,....

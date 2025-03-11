@@ -6,9 +6,11 @@ function [D_op,W_op,loss_op,...
                              Nt,dt,...
                              kr,...
                              Omega,omega,...
-                             fields,...
+                             E_tr,...
                              F_op)
 %CALC_D_OP_R It computes the dispersion operator used in 3D-UPPE
+
+E_wr = F_op.Ff(E_tr,[]);
 
 % The dispersion term in the 3D-UPPE, in frequency space
 n = ifftshift(n,1); % (Nt,Nr,1,Np); in the order that the fft gives
@@ -16,11 +18,9 @@ c = 299792458e-12; % m/ps
 k0 = omega/c; % 1/m
 k = real(n).*k0; % consider only the refractive index (real part of "n")
 % Refractive index is separated into the space-invariant and variant parts.
-% The invariant part is taken at where the highest refractive index is.
-% For example, for graded-index fibers, it's at the fiber center.
-% The space-variant part becomes the waveguide term.
-[~,max_n_idx] = max(feval(@(x)x(:),sum(real(n),[1,4])));
-nc = n(:,max_n_idx,:,:);% max(max(real(n),[],2),[],4);
+% The invariant part is taken as the averaged index experienced by the
+% field.
+nc = sum(abs(E_wr).^2.*n,2)./sum(abs(E_wr).^2,2);
 kc = real(nc).*k0;
 
 % Below I set all indices smaller than 1 to 1.
@@ -35,11 +35,11 @@ W_op = 1i*kW2/2./kc;
 
 % Obtain the omega0 of the input pulse
 fftshift_omegas = fftshift(Omega,1);
-spectrum = sum(abs(fftshift(F_op.Ff(fields,[]),1)).^2,[2,4]);
+spectrum = sum(abs(fftshift(E_wr,1)).^2,[2,4]);
 omega0 = sum(fftshift_omegas.*spectrum)/sum(spectrum); % 2*pi*THz; the pulse center frequency (under shifted omega)
 
 if ~isfield(sim,'betas')
-    if Nt == 1 || ~any(fields(:)) % CW case
+    if Nt == 1 || ~any(E_wr(:)) % CW case
         sim.betas = [kc;0];
     else
         sim.betas = zeros(2,1,'gpuArray');

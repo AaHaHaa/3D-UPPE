@@ -263,7 +263,7 @@ if sim.photoionization_model
                                                F_op);
 
         nonlinear_photoionization = nonlinear_photoionization + ...
-                                    prefactor{4}.*F_op.Ff(Ne.*E_tr,[]) + prefactor{5}.*F_op.Ff(DNeDt./inverse_E2.*E_tr,[]);
+                                    prefactor{4}.*F_op.Ff(Ne.*E_tr,[]) + gas.(gas.material{gas_i}).ionization.energy*prefactor{5}.*F_op.Ff(DNeDt./inverse_E2.*E_tr,[]);
     end
 else
     nonlinear_photoionization = 0;

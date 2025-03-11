@@ -87,7 +87,7 @@ gas.N2.V.preR = gas.N2.V.preR*0;
 %% Initial condition
 MFD0 = 100e-6; % m
 tfwhm = 1; % ps
-energy = 10e6; % nJ
+energy = 3e6; % nJ
 initial_condition = build_3Dgaussian_r(MFD0, tfwhm, time_window, energy, Nt, r);
 
 %% Show initial spaces
@@ -186,6 +186,11 @@ plot(prop_output.z,optical_energy,'linewidth',2,'Color','b');
 xlabel('Propagation distance (m)');
 ylabel('Power (nJ)');
 set(gca,'fontsize',20);
+
+% Plot spatial evolution
+plot_spatial_evolution_r(r*1e6,prop_output.z,squeeze(abs(prop_output.field(floor(Nt/2)+1,:,:)).^2));
+ylabel('X (\mum)');
+ylim([-100,100]);
 
 % Movie
 Frame = animator_r(prop_output.field,....

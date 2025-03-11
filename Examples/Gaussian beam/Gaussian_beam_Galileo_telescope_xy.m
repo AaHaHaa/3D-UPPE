@@ -27,7 +27,7 @@ dx = spatial_window/Nx; % m
 %% Setup fiber parameters
 sim.lambda0 = 1030e-9; % the center wavelength
 fiber.n = ones(1,Nx,Nx); % air
-%fiber.n2 = 0; % no nonlinearity
+fiber.n2 = 0; % no nonlinearity
 
 % Load default parameters like
 %
@@ -57,7 +57,7 @@ lambda = c./(f*1e12)*1e9; % nm
 x = (-Nx/2:Nx/2-1)*dx*1e3; % mm
 kx = 2*pi*(-Nx/2:Nx/2-1)/spatial_window*1e-3; % 2*pi/mm
 
-num_save = 20;
+num_save = 30;
 
 %% Initial condition
 MFD0 = 1e-3; % m
@@ -134,9 +134,15 @@ optical_power1 = squeeze(sum(abs(prop_output1.field).^2,[1,2,3]))*dx^2; % W
 optical_power2 = squeeze(sum(abs(prop_output2.field).^2,[1,2,3]))*dx^2; % W
 optical_power3 = squeeze(sum(abs(prop_output3.field).^2,[1,2,3]))*dx^2; % W
 
+% Spatial profile along the x=0
+A2_1 = squeeze(abs(prop_output1.field(floor(Nt/2)+1,floor(Nx/2)+1,:,:)).^2);
+A2_2 = squeeze(abs(prop_output2.field(floor(Nt/2)+1,floor(Nx/2)+1,:,:)).^2);
+A2_3 = squeeze(abs(prop_output3.field(floor(Nt/2)+1,floor(Nx/2)+1,:,:)).^2);
+
 z = [prop_output1.z; prop_output2.z(2:end)+prop_output1.z(end); prop_output3.z(2:end)+prop_output1.z(end)+prop_output2.z(end)]; % m
 MFD = [MFD1;MFD2(2:end);MFD3(2:end)]; % mm
 optical_power = [optical_power1;optical_power2(2:end);optical_power3(2:end)]; % W
+A2 = [A2_1, A2_2(:,2:end), A2_3(:,2:end)];
 
 %% Theoretical Gaussian propagation
 w0 = MFD0/2; % m
@@ -207,3 +213,8 @@ hold off
 xlabel('Propagation distance (m)');
 ylabel('Power (W)');
 set(gca,'fontsize',20);
+
+% Plot spatial evolution
+plot_spatial_evolution_xy(x,z,A2);
+ylabel('X (mm)');
+ylim([-1,1]);

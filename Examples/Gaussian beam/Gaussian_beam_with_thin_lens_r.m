@@ -137,9 +137,14 @@ MFD2 = calcMFD_r(squeeze(sum(prop_output2.field,1)),r)'*1e3; % mm
 optical_power1 = squeeze(sum(2*pi*trapz(r,abs(prop_output1.field).^2.*r,2),1)); % W
 optical_power2 = squeeze(sum(2*pi*trapz(r,abs(prop_output2.field).^2.*r,2),1)); % W
 
+% Spatial profile
+A2_1 = squeeze(abs(prop_output1.field(floor(Nt/2)+1,:,:)).^2);
+A2_2 = squeeze(abs(prop_output2.field(floor(Nt/2)+1,:,:)).^2);
+
 z = [prop_output1.z; prop_output2.z(2:end)+prop_output1.z(end)]; % m
 MFD = [MFD1;MFD2(2:end)]; % mm
 optical_power = [optical_power1;optical_power2(2:end)]; % W
+A2 = [A2_1, A2_2(:,2:end)];
 
 %% Theoretical Gaussian propagation
 w0 = MFD0/2; % m
@@ -202,7 +207,7 @@ xlabel('Propagation distance (m)');
 ylabel('MFD (mm)');
 l = legend('Simulated','Calculated'); set(l,'location','northwest');
 set(gca,'fontsize',20);
-print(gcf,'MFD.pdf','-dpdf');
+%print(gcf,'MFD.pdf','-dpdf');
 
 % Power
 % Check that whether it's conserved
@@ -214,4 +219,9 @@ hold off
 xlabel('Propagation distance (m)');
 ylabel('Power (W)');
 set(gca,'fontsize',20);
-print(gcf,'E.pdf','-dpdf');
+%print(gcf,'E.pdf','-dpdf');
+
+% Plot spatial evolution
+plot_spatial_evolution_r(r*1e3,z,A2);
+ylabel('X (mm)');
+ylim([-1.3,1.3]);
