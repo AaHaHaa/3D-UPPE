@@ -60,7 +60,7 @@ I'm Yi-Hao Chen, the author of the code and from Frank Wise's group at Cornell A
 ## History:
 * 2/20/2025:<br>
 Ar refractive index was wrong! I fixed it.
-* 3/9/2025:<br>
-Fixed the photoionization bug.
 * 3/10/2025:<br>
 Added full nonlinearity support for CW. In the future, I decide to make the index z-dependent, which is commonly-known as "wave propagation method". However, compared to them, this model will have a full nonlinear support in both solid and gas, as well as supporting pulsed scenarios.
+* 3/11/2025:<br>
+(Hopefully) fixed all the photoionization bugs.
