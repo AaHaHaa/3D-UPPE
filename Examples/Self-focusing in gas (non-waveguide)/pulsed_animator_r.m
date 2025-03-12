@@ -1,7 +1,7 @@
-function Frame = animator_r(A,...
-                            z,MFD,...
-                            Nt,dt,r,lambda,...
-                            L0)
+function Frame = pulsed_animator_r(A,...
+                                   z,MFD,...
+                                   Nt,dt,r,lambda,...
+                                   L0)
 
 % Make them column vectors
 z = z(:);
@@ -31,7 +31,7 @@ for j = 1:size(A,3)
     xlabel('z (cm)');
     ylabel('MFD (\mum)');
     xlim([0,L0*1e2]); % cm
-    ylim([0,100]); % um
+    ylim([98,100.1]); % um
 
     subplot(2,2,[3,4]);
     spectrum = abs(fftshift(ifft(A(:,:,j),[],1),1)).^2*factor_correct_unit.*factor; % nJ/nm/m^2
