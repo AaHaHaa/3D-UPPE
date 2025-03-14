@@ -23,8 +23,11 @@ function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, N
 %   ne: (Nt,1); the free electron number density (1/m^3)
 %   DneDt: (Nt,1); the time derivative of ne (1/m^3/s)
 
-[Nt,Np] = size(Et,[1,4]);
-if Np ~= 1 || ellipticity ~= 0
+% The polarization dimension is in the 4th in radially-symmetric scheme and
+% in 5th dimension in the xy scheme. Here, I kinda try to get them when I
+% don't know what exactly the scheme the code is using.
+[Nt,Npr,Npxy] = size(Et,[1,4,5]);
+if Npr ~= 1 || Npxy ~= 1 || ellipticity ~= 0
     error('Photoionization model works only for linearly polarized fields.');
 end
 if isempty(l) || ~ismember(l,[0,1]) % l is implemented with 0 or 1 for now
