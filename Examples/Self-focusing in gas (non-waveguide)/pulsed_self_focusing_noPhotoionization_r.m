@@ -1,5 +1,9 @@
 % This code simulates self-focusing of a Gaussian pulse in N2.
 %
+% In this code, I turn off photoionization to see if it makes a difference.
+% It is turned off by default [read by load_default_UPPE3D_propagate()]:
+%   sim.photoionization_model = false;
+%
 % Gas-filled 3D-UPPE employs the radially-symmetric scheme of the UPPE code.
 
 close all; clearvars;
@@ -68,8 +72,6 @@ lambda = c./(f*1e12)*1e9; % nm
 gas.temperature = 288; % K
 gas.pressure = 10e5; % Pa
 gas.material = {'N2'};
-
-sim.photoionization_model = true; % enable photoionization
 
 % Load parameters based on the configured parameters
 %
@@ -198,7 +200,7 @@ Frame = pulsed_animator_r(prop_output.field,....
                           Nt,dt,r,lambda,...
                           fiber.L0);
 implay(Frame(:),20);
-exportVideo = VideoWriter('pulsed_self-focusing');
+exportVideo = VideoWriter('pulsed_self-focusing_noPhotoionization');
 exportVideo.FrameRate = 20;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));

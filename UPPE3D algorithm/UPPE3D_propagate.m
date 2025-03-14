@@ -1,4 +1,4 @@
-function foutput = UPPE3D_propagate(fiber, initial_condition, sim, gas)
+function foutput = UPPE3D_propagate(fiber, initial_condition, sim, s)
 %UPPE3D_PROPAGATE Propagate an initial full-field pulse through an arbitrary 
 % distance of a nonlinear medium, such as an optical fiber
 %   This is a caller function, calling
@@ -28,20 +28,24 @@ if isfield(initial_condition,'r')
 end
 
 gas_str = '';
-if exist('gas','var')
-     gas_str = '_gas';
+if exist('s','var')
+    if any(ismember(s.material,{'H2','D2','N2','O2','air','CH4','N2O','CO2',...
+                                  'He','Ne','Ar','Kr','Xe'}))
+        gas_str = '_gas';
 
-     if isequal(rxy_str,'xy')
-         error('UPPE3D_propagate:simulationSchemeError',...
-               'Gas-filled simulation supports only the radially-symmetric scheme.');
-     end
+        if isequal(rxy_str,'xy')
+            error('UPPE3D_propagate:simulationSchemeError',...
+                  'Gas-filled simulation supports only the radially-symmetric scheme.');
+        end
+    end
 else
-    gas = [];
+    s = struct('info_called',false,...
+               'material',{{fiber.material}});
 end
 
-UPPE3D_propgation_func = str2func(['UPPE3D_propagate_', rxy_str,gas_str]);
+UPPE3D_propgation_func = str2func(['UPPE3D_propagate_homo_', rxy_str,gas_str]);
 
 %% Run the pulse propagation
-foutput = UPPE3D_propgation_func(fiber, initial_condition, sim, gas);
+foutput = UPPE3D_propgation_func(fiber, initial_condition, sim, s);
 
 end

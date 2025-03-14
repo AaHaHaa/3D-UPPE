@@ -1,5 +1,5 @@
 function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, Ng,...
-                                                l, Z,...
+                                                l, Z, me,...
                                                 erfi_x, erfi_y,...
                                                 ellipticity,...
                                                 F_op)
@@ -27,7 +27,7 @@ function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, N
 if Np ~= 1 || ellipticity ~= 0
     error('Photoionization model works only for linearly polarized fields.');
 end
-if isempty(l) || l>1 % l is implemented with 0 or 1 for now
+if isempty(l) || ~ismember(l,[0,1]) % l is implemented with 0 or 1 for now
     error('Current material isn''t supported yet.');
 end
 
@@ -47,7 +47,6 @@ pulse_phase = real(pulse_phase(floor(Nk/2) : end-floor(Nk/2),:));
 omega_pulse = -(pulse_phase(3:end,:)-pulse_phase(1:end-2,:))/(2*dt)+2*pi*f0; % THz; I use "central difference" to calculate the slope here
 omega_pulse = cat(1,omega_pulse(1,:),omega_pulse,omega_pulse(end,:))*1e12; % Hz
 
-me = 9.1093837e-31; % kg
 e = 1.60217663e-19; % Coulomb
 permittivity0 = 8.85418782e-12; % m^(-3)/kg*s^4*A^2
 c = 299792458; % m/s
@@ -96,7 +95,7 @@ else
     W = zeros(size(I)); % initialize W for the latter summation of the overall ionization rate including m = -l to l
 end
 for m = -l:l % l is implemented with 0 or 1 for now
-    flm = (2*lstar+1)*gamma(lstar+abs(m)+1)/2^(abs(m))/factorial(abs(m))/gamma(lstar-abs(m)+1);
+    flm = (2*l+1)*gamma(l+abs(m)+1)/2^(abs(m))/factorial(abs(m))/gamma(l-abs(m)+1);
     W = W + Cnl2*flm*ionization_energy/hbar*sqrt(6/pi)*A{abs(m)+1}.*(sqrt(permittivity0*c/2./I)*kappa./sqrt(1+Keldysh_parameter.^2)).^(2*nstar-abs(m)-1.5).*exp(-sqrt(permittivity0*c/2./I)*kappa/3.*g); % because fiber.n is frequency-dependent and is just around one in gases, we ignore it here in the temporal computation
 end
 W(I<max(I(:))/1e4) = 0; % avoid non-negligible W when there is no or weak field due to numerical precision error

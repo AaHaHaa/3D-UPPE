@@ -43,7 +43,7 @@ if ~isfield(fiber,'alpha')
 end
 if isfield(fiber,'fiber')
     [fiber.fiber_type,fiber.core_diameter,fiber.clad_diameter,fiber.core_NA,fiber.clad_NA,fiber.alpha] = fiber_collections(fiber.fiber);
-    fiber.material = 'fused silica';
+    fiber.material = 'silica';
 end
 
 % Sellmeier coefficients

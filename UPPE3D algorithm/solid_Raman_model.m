@@ -33,7 +33,7 @@ if sim.gpu_yes
 end
 
 switch fiber.material
-    case {'silica','fused silica'}
+    case 'silica'
         % only the isotropic Raman
         % Ch. 2.3, p.42, Nonlinear Fiber Optics (5th), Agrawal
         %fiber.fr = 0.18; % 0.18 is standard for silica fibers

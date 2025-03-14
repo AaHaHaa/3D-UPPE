@@ -31,7 +31,7 @@ for j = 1:size(A,3)
     xlabel('z (cm)');
     ylabel('MFD (\mum)');
     xlim([0,L0*1e2]); % cm
-    ylim([98,100.1]); % um
+    ylim([60,100.1]); % um
 
     subplot(2,2,[3,4]);
     spectrum = abs(fftshift(ifft(A(:,:,j),[],1),1)).^2*factor_correct_unit.*factor; % nJ/nm/m^2
@@ -43,7 +43,7 @@ for j = 1:size(A,3)
     xlabel('Wavelength (nm)');
     ylabel('PSD (nJ/nm)');
     legend('Avg spectrum','Center spectrum (norm.)');
-    xlim([1000,1060]);
+    xlim([1025,1035]);
     ylim([0,max(avg_spectrum)]);
 
     set(fig,'Color',[1,1,1]);

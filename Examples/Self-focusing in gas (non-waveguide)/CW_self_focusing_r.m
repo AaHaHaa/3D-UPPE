@@ -8,7 +8,7 @@
 
 close all; clearvars;
 
-addpath('../../../UPPE3D algorithm/','../../../user_helpers/');
+addpath('../../UPPE3D algorithm/','../../user_helpers/');
 
 %% Setup temporal/spectral parameters
 Nt = 1; % the number of time points
@@ -39,7 +39,7 @@ sim.FHATHA = struct('r',r,'kr',kr,...
 sim.lambda0 = 1030e-9; % the center wavelength
 sim.gpuDevice.Index = 1;
 
-fiber.L0 = 0.001;
+fiber.L0 = 0.002;
 num_save = 30;
 sim.save_period = fiber.L0/num_save;
 
@@ -89,7 +89,7 @@ gas.N2.V.preR = gas.N2.V.preR*0;
 %% Initial condition
 MFD0 = 100e-6; % m
 tfwhm = 1; % ps; determine the peak power, which is average power in CW
-energy = 10e6; % nJ; determine the peak power, which is average power in CW
+energy = 3e6; % nJ; determine the peak power, which is average power in CW
 initial_condition = build_3Dgaussian_r(MFD0, tfwhm, time_window, energy, Nt, r);
 
 %% Show initial spaces
@@ -200,7 +200,7 @@ Frame = CW_animator_r(prop_output.field,....
                       Nt,dt,r,lambda,...
                       fiber.L0);
 implay(Frame(:),20);
-exportVideo = VideoWriter('self-focusing');
+exportVideo = VideoWriter('CW_self-focusing');
 exportVideo.FrameRate = 20;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));

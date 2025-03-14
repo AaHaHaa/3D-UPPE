@@ -1,5 +1,5 @@
-function foutput = UPPE3D_propagate_xy(fiber, initial_condition, sim, dummy_input) %#ok
-%UPPE3D_PROPAGATE_XY
+function foutput = UPPE3D_propagate_homo_xy(fiber, initial_condition, sim, solid)
+%UPPE3D_PROPAGATE_HOMO_XY
 
 %%
 if ispc
@@ -21,6 +21,11 @@ initial_condition.field = initial_condition.field(:,:,:,end,:); % take only the 
 %% Some Parameters
 % Get the numerical parameters from the initial condition.
 [Nt, Nx, Ny, ~, ~] = size(initial_condition.field);
+
+%% Call solid_info() to load gas parameters
+if ~solid.info_called
+    [fiber,sim,solid] = solid_info(fiber,sim,solid);
+end
 
 %% Check the validity of input parameters
 if sim.gpu_yes
@@ -105,21 +110,45 @@ end
 sim.damped_window = create_damped_window_xy(Nt,Nx,Ny);
 
 %% Pre-calculate the factor used in 3D-UPPE
+if Nt == 1 % CW case
+    sim.photoionization_model = false; % photoionization isn't implemented for CW yet
+end
+c = 299792458;
+permittivity0 = 8.8541878176e-12; % F/m
+prefactor_prefactor = (1i/2./kc.*k0.^2/permittivity0);
 prefactor = {1 + kxy2/2./kc.^2,... % correction factor for using kc as the denominator in nonlinear computations (in k-space)
-             (1i/2./kc).*(k0.^2*2.*fiber.n*fiber.n2/3)}; % nonlinear prefactor (in real-xy space)
+             prefactor_prefactor.*(permittivity0*2.*fiber.n*fiber.n2/3)}; % nonlinear prefactor (in real-xy space)
+
+% Photoionization prefactor
+if sim.photoionization_model
+    me = 0.64*9.1093837e-31; % kg; electron mass; % silica has a smaller effective electron mass
+    e = 1.60217663e-19; % Coulomb; electron charge 
+    wtc = (omega*1e12)*solid.(solid.material{1}).ionization.tau_c;
+
+    prefactor = [prefactor,...
+                 {prefactor_prefactor.*(-e^2/me./(omega*1e12).^2.*(-1i+wtc).*wtc./(1+wtc.^2)),... % ionization-related loss
+                  prefactor_prefactor.*(1i*permittivity0*fiber.n*c./(omega*1e12))}]; % ionization-related phase contribution
+end
+
+if sim.gpu_yes
+    for i = 1:length(prefactor)
+        prefactor{i} = gpuArray(prefactor{i});
+    end
+end
 
 % Incorporate the damped window to the n2 term to remove generation of
 % frequency component near the window edge.
 prefactor{2} = prefactor{2}.*sim.damped_window;
+if sim.photoionization_model
+    prefactor{3} = prefactor{3}.*sim.damped_window;
+    prefactor{4} = prefactor{4}.*sim.damped_window;
+end
 
 %% Pre-compute the Raman response in frequency space
 if Nt == 1 % ignore Raman scattering under CW cases
     sim.include_Raman = false;
 end
 
-if ~isfield(fiber,'material')
-    fiber.material = 'silica';
-end
 [fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
 if ~sim.include_Raman % no Raman
     fr = 0;
@@ -131,6 +160,15 @@ end
 % We will always save the initial condition as well
 save_points = int64(num_saves_total + 1);
 save_z = double(0:save_points-1)'*sim.save_period;
+
+%% Photoionization - erfi() lookup table
+% Because calculating erfi() is slow, it's faster if I create a lookup table and use interp1().
+% The range of input variable for erfi is 0~sqrt(2) only.
+if sim.photoionization_model
+    n_Am = 10; % the number of summation of Am term in photoionization
+    solid.erfi_x = linspace(0,sqrt(2*(n_Am+1)),1000)';
+    solid.erfi_y = erfi(solid.erfi_x);
+end
 
 %% Modified shot-noise for noise modeling
 E_tr_noise_prefactor = shot_noise_xy(sim.f0,...
@@ -146,7 +184,7 @@ run_start = tic;
 % -------------------------------------------------------------------------
 [E_out,...
  save_z,save_dz,...
- T_delay_out] = SteppingCaller_adaptive_xy(sim,...
+ T_delay_out] = SteppingCaller_adaptive_xy(sim,solid,...
                                            save_z,save_points,...
                                            initial_condition,...
                                            prefactor,...

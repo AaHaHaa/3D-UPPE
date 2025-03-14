@@ -1,6 +1,6 @@
 function [E_out,...
           save_z,save_dz,...
-          T_delay_out] = SteppingCaller_adaptive_r(sim,...
+          T_delay_out] = SteppingCaller_adaptive_r(sim, solid,...
                                                    save_z, save_points,...
                                                    initial_condition,...
                                                    prefactor,...
@@ -15,6 +15,11 @@ dt = initial_condition.dt;
 
 save_dz = zeros(save_points,1);
 T_delay_out = zeros(save_points,1);
+if sim.photoionization_model
+    relative_Ne = zeros(Nt,Nr,save_points); % excited electrons due to photoionization
+else
+    relative_Ne = []; % dummy variable for output
+end
 
 % Pulse centering based on the moment of its intensity
 if sim.pulse_centering && Nt ~= 1 % non-CW
@@ -109,13 +114,14 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
         [last_E,a5,...
          opt_dz, dz_DW,...
          success] = stepping_RK4IP_adaptive(last_E,...
-                                            sim, prefactor,...
+                                            sim, solid, prefactor,...
                                             F_op,...
                                             D_op, W_op, loss_op,...
                                             fr, haw, hbw,...
                                             E_tr_noise_prefactor,...
                                             a5, dz_DW,...
-                                            sim.FHATHA.r);
+                                            sim.FHATHA.r,...
+                                            dt);
 
         if ~success
             if opt_dz < 1e-10
@@ -188,6 +194,12 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
 
     % If it's time to save, get the result from the GPU if necessary,
     % transform to the time domain, and save it
+    if z == sim.last_dz
+        if sim.photoionization_model
+            E_out_ii = F_op.iFk(F_op.iFf(last_E,[]),true);
+            relative_Ne(:,:,1) = calc_Ne(E_out_ii, dt, solid, sim, F_op);
+        end
+    end
     if z >= save_z(save_i)-eps(z)
         E_out_ii = F_op.iFk(F_op.iFf(last_E,[]),true);
         if sim.gpu_yes
@@ -198,6 +210,9 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
             save_dz(save_i) = sim.last_dz;
             save_z(save_i) = z;
             E_out(:,:,save_i,:) = E_out_ii;
+        end
+        if sim.photoionization_model
+            relative_Ne(:,:,save_i) = calc_Ne(E_out_ii, dt, solid, sim, F_op);
         end
 
         T_delay_out(save_i) = T_delay;
@@ -234,6 +249,21 @@ spectrum = spectrum./max(spectrum);
 
 eff_D = D.*spectrum.^(1/5); % I use ^(1/5) to emphasize the weak part
 eff_range_D = max(eff_D(:)) - min(eff_D(:));
+
+end
+% -------------------------------------------------------------------------
+function relative_Ne = calc_Ne(Et, dt, solid, sim, F_op)
+
+Ne = photoionization_PPT_model(Et, solid.(solid.material{1}).ionization.energy, sim.f0, dt, solid.Ng,...
+                               solid.(solid.material{1}).ionization.l, solid.(solid.material{1}).ionization.Z,  solid.(solid.material{1}).ionization.me,...
+                               solid.erfi_x, solid.erfi_y,...
+                               sim.ellipticity,...
+                               F_op);
+relative_Ne = Ne/sum(solid.Ng);
+
+if sim.gpu_yes
+    relative_Ne = gather(relative_Ne);
+end
 
 end
 % =========================================================================

@@ -1,6 +1,6 @@
 function [fiber,sim,gas] = gas_info(fiber,sim,gas,wavelength)
 %GAS_INFO It loads parameters related to gases
-%   wavelength: in "m"; from small to large
+%   wavelength: in "m"; from large to small
 
 %% Error check
 if length(gas.pressure) ~= length(gas.material)
@@ -72,7 +72,14 @@ fiber.n2 = gas_n2(gas.material,wavelength,eta);
 
 %% Ionization potential
 if sim.photoionization_model
-    gas = gas_photoionization_parameters(gas);
+    gas = photoionization_parameters(gas);
 end
+
+%%
+% There will be some situations where we want to modify, for example, the 
+% Raman response functions, so gas_info() will be called before pulse
+% propagation. In this case, we don't want the propagation function to call
+% gas_info() again and rewrite the desired parameters set beforehand.
+gas.info_called = true; % gas_info() has been called
 
 end

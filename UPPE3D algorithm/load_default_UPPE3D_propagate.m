@@ -197,8 +197,7 @@ end
 % -------------------------------------------------------------------------
 % Basic properties
 default_fiber.fiber = '1060XP'; % use the repository in this package to set the fiber index profile
-default_fiber.material = 'fused silica'; % for finding the Raman response in UPPE3D_propagate()
-default_fiber.n2 = 2.3e-20; % m^2/W
+default_fiber.material = 'silica'; % for finding the Raman response in UPPE3D_propagate()
 
 % L0 is necessary to be put into "default_fiber" first for "gain_coeff" calculation.
 if isfield(input_fiber,'L0')

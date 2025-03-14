@@ -1,5 +1,5 @@
-function foutput = UPPE3D_propagate_r_gas(fiber, initial_condition, sim, gas)
-%UPPE3D_PROPAGATE_R_GAS
+function foutput = UPPE3D_propagate_homo_r_gas(fiber, initial_condition, sim, gas)
+%UPPE3D_PROPAGATE_HOMO_R_GAS
 
 %%
 if ispc
@@ -32,6 +32,14 @@ if Nt == 1 % CW case
 else
     gas_Nt = Nt*3;
     gas_dt = dt/3;
+end
+
+%% Call gas_info() to load gas parameters
+f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz
+c = 299792458*1e-12; % m/ps
+wavelength = c./f*1e9; % nm
+if ~gas.info_called
+    [fiber,sim,gas] = gas_info(fiber,sim,gas,wavelength);
 end
 
 %% Check the validity of input parameters

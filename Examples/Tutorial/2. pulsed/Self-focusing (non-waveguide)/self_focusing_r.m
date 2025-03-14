@@ -9,12 +9,12 @@ addpath('../../../../UPPE3D algorithm/','../../../../user_helpers/');
 
 %% Setup temporal/spectral parameters
 Nt = 2^8; % the number of time points
-time_window = 10; % ps
+time_window = 20; % ps
 dt = time_window/Nt; % ps
 
 %% Setup spatial parameters
 % Information for the Hankel transform
-Nr = 2^11; % the number of radial sampling points
+Nr = 2^10; % the number of radial sampling points
 r_max = 5e-4; % the maximum radius; half of the spatial window
 kr_max = 2e5; % the maximum kr vector
 FHATHA_energy_restoration = false; % don't enable constant operations of FHATHA's energy restoration function (see details of FHATHA in readme)
@@ -37,7 +37,7 @@ sim.lambda0 = 1030e-9; % the center wavelength
 sim.gpuDevice.Index = 1;
 
 fiber.L0 = 1e-2;
-num_save = 50;
+num_save = 30;
 sim.save_period = fiber.L0/num_save;
 
 % Load default parameters like
@@ -58,6 +58,8 @@ sim.save_period = fiber.L0/num_save;
 %
 % Please check this function for details.
 [fiber,sim] = load_default_UPPE3D_propagate(fiber,sim); % load default parameters
+
+sim.photoionization_model = true; % enable photoionization
 
 % Setup general parameters
 f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz

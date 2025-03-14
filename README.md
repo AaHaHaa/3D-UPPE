@@ -47,10 +47,17 @@ It acts as a discrete "nonlinear" waveguide with interleaving media of low (e.g.
 Source: "3D-UPPE/Examples/Periodically-layered Kerr medium (PLKM) compressor"  
 <img src="Readme_images/PLKM_r.gif" width=45%><img src="Readme_images/PLKM_dechirped.jpg" width=45%>
 
-- **Self focusing**  
-Pulse with high peak power will experience self-focusing in a Kerr medium with a positive nonlinear refractive index. The medium effectively acts as a lens, reducing the propagating beam size.  
+- **Self focusing (in silica)**  
+Pulse with high peak power experiences self-focusing in a Kerr medium with a positive nonlinear refractive index. The medium effectively acts as a lens, reducing the propagating beam size.  
 Source: "3D-UPPE/Examples/Tutorial/2. pulsed/Self-focusing (non-waveguide)"  
 <img src="Readme_images/self-focusing_r.gif" width=45%>
+
+- **Self focusing with/without photoionization (in N2)**  
+Pulse with high peak power experiences self-focusing in a gas medium as in solids. Here in this case, the peak power is made so high that it ionizes the gas, which defocuses the beam.  
+Below I show examples without (left column) and with (right column) the photoionization contribution. Without it, the beam only self-focus due to electronic nonlinearity.  
+Source: "3D-UPPE/Examples/Self-focusing in gas (non-waveguide)"  
+<img src="Readme_images/noPhotoionization_self-focusing.jpg" width=45%><img src="Readme_images/withPhotoionization_self-focusing.jpg" width=45%>  
+<img src="Readme_images/pulsed_self-focusing_noPhotoionization.gif" width=45%><img src="Readme_images/pulsed_self-focusing.gif" width=45%>
 
 ## Notes:
 There is a `readme.pdf` in the `Documentations/` folder of **3D-UPPE**. Please find details of how to use this package in it. However, the fastest way to learn how to use this package is to learn from the examples in the `Examples/` folder.

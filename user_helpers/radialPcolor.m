@@ -8,7 +8,7 @@ function varargout = radialPcolor(r,A2,varargin)
 r_max = max(r); % m
 
 Nr = length(r);
-Nx = Nr*2;
+Nx = Nr*2 - 1;
 x = linspace(-r_max,r_max,Nx); % m
 [xx,yy] = meshgrid(x,x);
 
