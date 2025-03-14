@@ -54,7 +54,7 @@ Source: "3D-UPPE/Examples/Tutorial/2. pulsed/Self-focusing (non-waveguide)"
 
 - **Self focusing with/without photoionization (in N2)**  
 Pulse with high peak power experiences self-focusing in a gas medium as in solids. Here in this case, the peak power is made so high that it ionizes the gas, which defocuses the beam.  
-Below I show examples without (left column) and with (right column) the photoionization contribution. Without it, the beam only self-focus due to electronic nonlinearity. In addition, photoionization-induced blueshift can be clearly seen.  
+Below I show examples without (left column) and with (right column) the photoionization contribution. Without it, the beam only self-focuses due to electronic nonlinearity. In addition, photoionization-induced blueshift can be clearly seen.  
 Source: "3D-UPPE/Examples/Self-focusing in gas (non-waveguide)"  
 <img src="Readme_images/noPhotoionization_self-focusing.jpg" width=45%><img src="Readme_images/withPhotoionization_self-focusing.jpg" width=45%>  
 <img src="Readme_images/pulsed_self-focusing_noPhotoionization.gif" width=45%><img src="Readme_images/pulsed_self-focusing.gif" width=45%>
