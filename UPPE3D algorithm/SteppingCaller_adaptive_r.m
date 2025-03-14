@@ -7,7 +7,8 @@ function [E_out,...
                                                    F_op,...
                                                    D_op, W_op, loss_op,...
                                                    fr, haw, hbw,...
-                                                   E_tr_noise_prefactor)
+                                                   E_tr_noise_prefactor,...
+                                                   n_pulse)
 %STEPPINGCALLER_ADAPTIVE_R It starts the pulse propagation.
 
 [Nt,Nr,~,Np] = size(initial_condition.field);
@@ -121,7 +122,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
                                             E_tr_noise_prefactor,...
                                             a5, dz_DW,...
                                             sim.FHATHA.r,...
-                                            dt);
+                                            dt,n_pulse);
 
         if ~success
             if opt_dz < 1e-10
@@ -197,7 +198,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
     if z == sim.last_dz
         if sim.photoionization_model
             E_out_ii = F_op.iFk(F_op.iFf(last_E,[]),true);
-            relative_Ne(:,:,1) = calc_Ne(E_out_ii, dt, solid, sim, F_op);
+            relative_Ne(:,:,1) = calc_Ne(E_out_ii, dt, solid, sim, F_op, n_pulse);
         end
     end
     if z >= save_z(save_i)-eps(z)
@@ -212,7 +213,7 @@ while z+eps(z) < save_z(end) % eps(z) here is necessary due to the numerical err
             E_out(:,:,save_i,:) = E_out_ii;
         end
         if sim.photoionization_model
-            relative_Ne(:,:,save_i) = calc_Ne(E_out_ii, dt, solid, sim, F_op);
+            relative_Ne(:,:,save_i) = calc_Ne(E_out_ii, dt, solid, sim, F_op, n_pulse);
         end
 
         T_delay_out(save_i) = T_delay;
@@ -252,10 +253,10 @@ eff_range_D = max(eff_D(:)) - min(eff_D(:));
 
 end
 % -------------------------------------------------------------------------
-function relative_Ne = calc_Ne(Et, dt, solid, sim, F_op)
+function relative_Ne = calc_Ne(Et, dt, solid, sim, F_op, n_pulse)
 
-Ne = photoionization_PPT_model(Et, solid.(solid.material{1}).ionization.energy, sim.f0, dt, solid.Ng,...
-                               solid.(solid.material{1}).ionization.l, solid.(solid.material{1}).ionization.Z,  solid.(solid.material{1}).ionization.me,...
+Ne = photoionization_PPT_model(Et, solid.(solid.material{1}).ionization.energy, sim.f0, dt, solid.Ng, n_pulse,...
+                               solid.(solid.material{1}).ionization.l, solid.(solid.material{1}).ionization.Z,  solid.(solid.material{1}).ionization.me, solid.(solid.material{1}).ionization.tau_c, solid.(solid.material{1}).ionization.tau_r,...
                                solid.erfi_x, solid.erfi_y,...
                                sim.ellipticity,...
                                F_op);

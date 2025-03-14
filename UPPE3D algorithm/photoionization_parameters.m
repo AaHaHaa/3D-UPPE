@@ -13,7 +13,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'D2'
             ionization_energy = 15.46658; % eV
             
@@ -21,7 +22,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'N2'
             ionization_energy = 15.581; % eV
             
@@ -33,7 +35,8 @@ for s_i = 1:num_s
             Z = 0.9; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'O2'
             ionization_energy = 12.0697; % eV
             
@@ -45,7 +48,8 @@ for s_i = 1:num_s
             Z = 0.53; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'CH4'
             ionization_energy = 12.61; % eV
             
@@ -54,7 +58,8 @@ for s_i = 1:num_s
             Z = [];
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'He'
             ionization_energy = 24.58741; % eV
             
@@ -62,7 +67,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'Ne'
             ionization_energy = 21.56454; % eV
             
@@ -70,7 +76,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'Ar'
             ionization_energy = 15.759; % eV
             
@@ -78,7 +85,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'Kr'
             ionization_energy = 13.99961; % eV
             
@@ -86,7 +94,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'Xe'
             ionization_energy = 12.12987; % eV
             
@@ -94,7 +103,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'CO2'
             ionization_energy = 13.78; % eV
             
@@ -103,7 +113,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'N2O'
             ionization_energy = 12.89; % eV
             
@@ -113,7 +124,8 @@ for s_i = 1:num_s
             Z = 0.9; % effective charge
 
             me = 9.1093837e-31; % kg
-            tau_c = []; %s; averaged collision time of electrons
+            tau_c = []; % s; averaged collision time of electrons
+            tau_r = []; % s; recombination time
         case 'silica'
             ionization_energy = 9; % eV
             
@@ -121,7 +133,8 @@ for s_i = 1:num_s
             Z = 1; % effective charge
 
             me = 0.64*9.1093837e-31; % kg; silica has a smaller effective electron mass
-            tau_c = 1e-15; %s; averaged collision time of electrons
+            tau_c = 1e-15; % s; averaged collision time of electrons
+            tau_r = 150e-15; % s; recombination time
         otherwise
             error('photoionization_parameters:MaterialError',...
                   'This code doesn''t support the ionization computation of the input materials yet');
@@ -131,7 +144,8 @@ for s_i = 1:num_s
                                                  'l',l,... % quantum number l
                                                  'Z',Z,... % effective charge
                                                 'me',me,... % electron mass
-                                                'tau_c',tau_c); % collision time
+                                                'tau_c',tau_c,... % collision time
+                                                'tau_r',tau_r); % recombination time
 end
 
 end

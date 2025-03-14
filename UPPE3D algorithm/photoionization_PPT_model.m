@@ -1,5 +1,5 @@
-function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, Ng,...
-                                                l, Z, me,...
+function [ne,DneDt] = photoionization_PPT_model(Et, ionization_energy, f0, dt, Ng, n_pulse,...
+                                                l, Z, me, tau_c, tau_r,...
                                                 erfi_x, erfi_y,...
                                                 ellipticity,...
                                                 F_op)
@@ -103,17 +103,25 @@ for m = -l:l % l is implemented with 0 or 1 for now
 end
 W(I<max(I(:))/1e4) = 0; % avoid non-negligible W when there is no or weak field due to numerical precision error
 
-ne = Ng*cumsum(W,1)*(dt*1e-12);
-if max(ne(:))/Ng > 1e-2
+if ~isempty(tau_c) % if solid
+    wtc = omega_pulse*tau_c;
+    sigma_IB = e^2./n_pulse./omega_pulse/c/permittivity0/me.*wtc./(1+wtc.^2);
+    P = cumsum((-W + sigma_IB/ionization_energy.*I - 1/tau_r)*(dt*1e-12),1);
+else
+    P = cumsum((-W)*(dt*1e-12),1);
+end
+ne = exp(P).*cumsum(W*Ng.*exp(-P),1)*(dt*1e-12);
+if max(ne(:))/Ng > 0.3
     error('photoionization_PPT_model:neError',...
           ['Ion density is too high, reaching %.3f%% of total gas density.\n',...
            'Current implementation supports only perturbative ionization.\n',...
            'Please reduce the peak power or anything that reduces the ionization effect.'],max(ne(:))/Ng*100);
 end
-% Below is the more accurate version with integrating factor.
-% It's important only when relative_ne approaches the gas number density, Ng.
-%integrating_factor = exp(cumsum(W)*(dt*1e-12));
-%ne = Ng./integrating_factor.*cumsum(W.*integrating_factor)*(dt*1e-12);
-DneDt = W.*(Ng - ne);
+
+if ~isempty(tau_c) % if solid
+    DneDt = W.*(Ng - ne) + (sigma_IB/ionization_energy.*I - 1/tau_r).*ne;
+else
+    DneDt = W.*(Ng - ne);
+end
 
 end
