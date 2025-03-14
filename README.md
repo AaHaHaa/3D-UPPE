@@ -13,7 +13,7 @@ It is useful for simulating solid-based or gas-filled multipass cell or multipla
 9. Support radially-symmetric scheme with the Hankel transform for efficient modeling.
 10. Support both solid and gas environments.
 11. For gases, it supports both noble and Raman-active gases with the newly-developed vector Raman model [[1]](#references-our-papers).
-12. Support photoionization in gases with the Perelomov-Popov-Terent'ev (PPT) model.
+12. Support photoionization in both solids and gases with the Perelomov-Popov-Terent'ev (PPT) model.
 13. Support both pulsed and CW ($N_t=1$) cases. Full nonlinearity is supported in CW to fast simulate some phenomena, such as high-average-power self-focusing.
 
 ## Fourier-Transform tutorial
