@@ -16,8 +16,9 @@ It is useful for simulating solid-based or gas-filled multipass cell or multipla
 12. Support photoionization in both solids and gases with the Perelomov-Popov-Terent'ev (PPT) model.
 13. Support both pulsed and CW ($N_t=1$) cases. Full nonlinearity is supported in CW to fast simulate some phenomena, such as high-average-power self-focusing.
 
-## Fourier-Transform tutorial
-Since I've seen many misuse of Fourier Transform, I wrote [this tutorial](https://doi.org/10.48550/arXiv.2412.20698). Please take a look. Briefly speaking for one misuse, it's necessary to use MATLAB's `ifft` for Fourier Transform into the spectral domain.
+## Fourier and Hankel transforms
+Since I've seen many misuse of Fourier Transform, I wrote [this tutorial](https://doi.org/10.48550/arXiv.2412.20698). Please take a look. Briefly speaking for one misuse, it's necessary to use MATLAB's `ifft` for Fourier Transform into the spectral domain.  
+In addition, I have improved and implemented a new numerical Hankel transform scheme based on FHATHA, which might be publishable to a small journal (but I'm lazy). I put it in this arXiv tutoial as well. You can take a look if interested.
 
 ## How to activate CUDA for GPU computing in MATLAB:
 Typically MATLAB deals with this, but there are still come steps to follow before CUDA can really be used, especially when compiling .cu files to generate .ptx files. Below I show only steps for Windows. For linux, please search for their specific steps. I've never used Mac, so I cannot comment anything on this; some functions need to be revised for extended capabilities for Mac as far as I know.<br>
