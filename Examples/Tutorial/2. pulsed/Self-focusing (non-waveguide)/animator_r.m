@@ -20,13 +20,15 @@ for j = 1:size(A,3)
         fig = figure;
     end
 
+    spectrum = abs(fftshift(ifft(A(:,:,j),[],1),1)).^2*factor_correct_unit.*factor; % nJ/nm/m^2
+
     subplot(2,2,1);
-    % Plot the 2D field with pcolor
-    radialPcolor(r*1e6,abs(squeeze(A(floor(Nt/2)+1,:,j))).^2,fig);
-    xlabel('x (\mum)');
-    xlim([-100,100]);
-    ylim([-100,100]);
-    daspect([1 1 1]); % make aspect ratio = 1
+    pcolor(lambda,r*1e6,spectrum');
+    shading interp; colormap(jet);
+    xlabel('Wavelength (nm)');
+    ylabel('r (\mum)');
+    xlim([1020,1040]);
+    ylim([0,100]);
 
     subplot(2,2,2);
     plot(z(1:j)*1e2,MFD(1:j),'Color','k','linewidth',2);

@@ -11,9 +11,6 @@ if sim.gpu_yes
     end
 end
 
-%% number density of atoms
-solid.Ng = 2.20e28; % m^(-3)
-
 %% Nonlinear coefficient
 fiber.n2 = solid_n2(solid.material{1});
 

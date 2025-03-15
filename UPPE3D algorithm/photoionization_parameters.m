@@ -15,6 +15,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'D2'
             ionization_energy = 15.46658; % eV
             
@@ -24,6 +25,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'N2'
             ionization_energy = 15.581; % eV
             
@@ -37,6 +39,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'O2'
             ionization_energy = 12.0697; % eV
             
@@ -50,6 +53,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'CH4'
             ionization_energy = 12.61; % eV
             
@@ -60,6 +64,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'He'
             ionization_energy = 24.58741; % eV
             
@@ -69,6 +74,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'Ne'
             ionization_energy = 21.56454; % eV
             
@@ -78,6 +84,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'Ar'
             ionization_energy = 15.759; % eV
             
@@ -87,6 +94,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'Kr'
             ionization_energy = 13.99961; % eV
             
@@ -96,6 +104,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'Xe'
             ionization_energy = 12.12987; % eV
             
@@ -105,6 +114,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'CO2'
             ionization_energy = 13.78; % eV
             
@@ -115,6 +125,7 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'N2O'
             ionization_energy = 12.89; % eV
             
@@ -126,15 +137,17 @@ for s_i = 1:num_s
             me = 9.1093837e-31; % kg
             tau_c = []; % s; averaged collision time of electrons
             tau_r = []; % s; recombination time
+            Ne = []; % m^(-3); number density of atoms (neutral electrons) = gas number density, so it's not used
         case 'silica'
             ionization_energy = 9; % eV
             
-            l = 0; % quantum number l
-            Z = 1; % effective charge
+            l = []; % quantum number l
+            Z = []; % effective charge
 
-            me = 0.64*9.1093837e-31; % kg; silica has a smaller effective electron mass
+            me = 0.86*9.1093837e-31; % kg; silica has a smaller effective electron mass
             tau_c = 1e-15; % s; averaged collision time of electrons
             tau_r = 150e-15; % s; recombination time
+            Ne = 2.20e28; % m^(-3); number density of atoms (neutral electrons)
         otherwise
             error('photoionization_parameters:MaterialError',...
                   'This code doesn''t support the ionization computation of the input materials yet');
@@ -145,7 +158,8 @@ for s_i = 1:num_s
                                                  'Z',Z,... % effective charge
                                                 'me',me,... % electron mass
                                                 'tau_c',tau_c,... % collision time
-                                                'tau_r',tau_r); % recombination time
+                                                'tau_r',tau_r,... % recombination time
+                                                'Ne',Ne); % number density of neutral electrons
 end
 
 end

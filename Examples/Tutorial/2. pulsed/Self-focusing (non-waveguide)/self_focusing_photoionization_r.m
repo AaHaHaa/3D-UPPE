@@ -36,7 +36,7 @@ sim.FHATHA = struct('r',r,'kr',kr,...
 sim.lambda0 = 1030e-9; % the center wavelength
 sim.gpuDevice.Index = 1;
 
-fiber.L0 = 1e-2;
+fiber.L0 = 1e-3;
 num_save = 30;
 sim.save_period = fiber.L0/num_save;
 
@@ -59,7 +59,7 @@ sim.save_period = fiber.L0/num_save;
 % Please check this function for details.
 [fiber,sim] = load_default_UPPE3D_propagate(fiber,sim); % load default parameters
 
-%sim.photoionization_model = true; % enable photoionization
+sim.photoionization_model = true; % enable photoionization
 
 % Setup general parameters
 f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz
@@ -79,7 +79,7 @@ fiber.n = n_from_Sellmeier(lambda/1e3);
 %% Initial condition
 MFD0 = 100e-6; % m
 tfwhm = 1; % ps
-energy = 9e3; % nJ
+energy = 100e3; % nJ
 initial_condition = build_3Dgaussian_r(MFD0, tfwhm, time_window, energy, Nt, r);
 
 %% Show initial spaces

@@ -61,6 +61,8 @@ sim.save_period = fiber.L0/num_save;
 % Please check this function for details.
 [fiber,sim] = load_default_UPPE3D_propagate(fiber,sim); % load default parameters
 
+sim.photoionization_model = true; % enable photoionization
+
 % Setup general parameters
 f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz
 t = (-Nt/2:Nt/2-1)'*dt; % ps

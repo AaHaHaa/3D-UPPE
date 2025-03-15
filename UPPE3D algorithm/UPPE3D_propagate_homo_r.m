@@ -126,12 +126,11 @@ prefactor = {1 + sim.FHATHA.kr.^2/2./kc.^2,... % correction factor for using kc 
 
 % Photoionization prefactor
 if sim.photoionization_model
-    me = 0.64*9.1093837e-31; % kg; electron mass; % silica has a smaller effective electron mass
     e = 1.60217663e-19; % Coulomb; electron charge 
     wtc = (omega*1e12)*solid.(solid.material{1}).ionization.tau_c;
 
     prefactor = [prefactor,...
-                 {prefactor_prefactor.*(-e^2/me./(omega*1e12).^2.*(-1i+wtc).*wtc./(1+wtc.^2)),... % ionization-related loss
+                 {prefactor_prefactor.*(-e^2/solid.(solid.material{1}).ionization.me./(omega*1e12).^2.*(-1i+wtc).*wtc./(1+wtc.^2)),... % ionization-related loss
                   prefactor_prefactor.*(1i*permittivity0*fiber.n*c./(omega*1e12))}]; % ionization-related phase contribution
 end
 
@@ -170,8 +169,10 @@ save_z = double(0:save_points-1)'*sim.save_period;
 % Because calculating erfi() is slow, it's faster if I create a lookup table and use interp1().
 % The range of input variable for erfi is 0~sqrt(2) only.
 if sim.photoionization_model
-    n_Am = 10; % the number of summation of Am term in photoionization
-    solid.erfi_x = linspace(0,sqrt(2*(n_Am+1)),1000)';
+    solid.n_Q = 10; % the number of summation terms in photoionization's Q
+    solid.ellip_x = linspace(0,1-1e-5,1000)';
+    [solid.ellipK,solid.ellipE] = ellipke(solid.ellip_x);
+    solid.erfi_x = linspace(0,sqrt(solid.n_Q+2),1000)';
     solid.erfi_y = erfi(solid.erfi_x);
 end
 
