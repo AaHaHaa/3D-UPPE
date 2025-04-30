@@ -29,10 +29,10 @@ dx = spatial_window/Nx; % m
 sim.lambda0 = 1030e-9; % m; the center wavelength
 sim.include_Raman = false; % N-SF11's Raman isn't considered in this case
 
-fiber.material = 'N-SF11'; % for finding the refractive index in UPPE3D_propagate()
+plate_material = 'N-SF11'; % for finding the refractive index in UPPE3D_propagate()
 
 % Please check this function for details.
-[fiber,sim] = load_default_UPPE3D_propagate(fiber,sim); % load default parameters
+[fiber,sim] = load_default_UPPE3D_propagate([],sim); % load default parameters
 
 % Setup general parameters
 f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz
@@ -42,7 +42,7 @@ lambda = c./(f*1e12)*1e9; % nm
 
 %% Material properties
 % Sellmeier coefficients
-[a,b] = Sellmeier_coefficients(fiber.material);
+[a,b] = Sellmeier_coefficients(plate_material);
 % Calculate the index difference using the Sellmeier equation to generate n(lambda)
 Sellmeier_terms = @(lambda,a,b) a.*lambda.^2./(lambda.^2 - b.^2);
 n_from_Sellmeier = @(lambda) sqrt(1+sum(Sellmeier_terms(lambda,a,b),2));
@@ -88,6 +88,7 @@ Frame(num_save,2*num_plates+1) = struct('cdata',[],'colormap',[]);
 
 %% air0; before the beam hits the first plate
 fiber.L0 = D; % m
+fiber.material = 'air';
 fiber.n =  n_air;
 fiber.n2 = n2_air;
 
@@ -121,10 +122,12 @@ for i = 1+(1:num_plates*2)
     
     if mod(i,2) == 0 % plate
         fiber.L0 = Plate_thickness; % m
+        fiber.material = plate_material;
         fiber.n =  n_plate;
         fiber.n2 = n2_plate;
     else % mod(i,2) == 1; air
         fiber.L0 = Plate_spacing;
+        fiber.material = 'air';
         fiber.n = n_air; % air
         fiber.n2 = n2_air; % no nonlinearity
     end
