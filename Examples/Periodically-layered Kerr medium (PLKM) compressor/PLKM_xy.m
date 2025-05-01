@@ -174,6 +174,6 @@ close(exportVideo);
 output_mode_field = prop_output.field(:,1,1,end)*sqrt(pi*(MFD(end)/2*1e-3)^2);
 
 theta_in = pi/6;
-wavelength0 = sim.lambda0*1e6;
+wavelength0 = sim.lambda0*1e9;
 grating_spacing = 1e-6;
 pulse_compressor( 'Treacy-t',theta_in,wavelength0,t,output_mode_field,grating_spacing,true );

@@ -231,7 +231,7 @@ find_FWHM = @(d) Treacy_calc_FWHM(compressor_type,d,theta_in,theta_out,wavelengt
 % Run the global optimization process to find the optimal grating separation
 % -------------------------------------------------------------------------
 min_separation = 0;
-GVD_before_dechirping = characterize_spectral_phase(c./wavelength,fftshift(ifft(ifftshift(field(:,1),1)),1),3,false); % consider only the 1st mode
+GVD_before_dechirping = characterize_spectral_phase(c./wavelength,field(:,1),3,false); % consider only the 1st mode
 % Obtain the initial guess from the beta2 of a grating compressor.
 % This number should be close to the answer already.
 initial_guess = GVD_before_dechirping/(m^2*wavelength_c^3/(pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3);
@@ -433,7 +433,7 @@ find_FWHM = @(d) prism_calc_FWHM(d,max_theta4,alpha,theta_in,theta2,theta3,theta
 % Run the global optimization process to find the optimal prism separation
 % -------------------------------------------------------------------------
 min_separation = 0;
-GVD_before_dechirping = characterize_spectral_phase(c./wavelength,fftshift(ifft(ifftshift(field(:,1),1)),1),3,false); % consider only the 1st mode
+GVD_before_dechirping = characterize_spectral_phase(c./wavelength,field(:,1),3,false); % consider only the 1st mode
 initial_guess = -GVD_before_dechirping*1e-30/(wavelength_c*1e-9)^3*(2*pi*(c*1e3)^2)/(4*sec(max_theta4))/((Dn2+(2*n_c-1/n_c^3)*Dn^2)*sin(max_theta4-theta4_c)-2*Dn^2*cos(max_theta4-theta4_c));
 if initial_guess < min_separation
     initial_guess = 0;
@@ -829,7 +829,7 @@ switch compressor_type(end)
         min_value = -2*R*0.9;
         max_value =  2*R*0.9;
 end
-GVD_before_dechirping = characterize_spectral_phase(c./wavelength,fftshift(ifft(ifftshift(field(:,1),1)),1),3,false); % consider only the 1st mode
+GVD_before_dechirping = characterize_spectral_phase(c./wavelength,field(:,1),3,false); % consider only the 1st mode
 % Obtain the initial guess from the beta2 of a grating compressor.
 % This number should be close to the answer already.
 % I assume that the dispersion equations are similar to Treacy grating
@@ -1108,7 +1108,7 @@ find_FWHM = @(d) Martinez_calc_FWHM(d,theta_in,theta_out,wavelength,time,field_w
 % -------------------------------------------------------------------------
 min_separation = 0;
 %initial_guess = focal_length;
-GVD_before_dechirping = characterize_spectral_phase(c./wavelength,fftshift(ifft(ifftshift(field(:,1),1)),1),3,false); % consider only the 1st mode
+GVD_before_dechirping = characterize_spectral_phase(c./wavelength,field(:,1),3,false); % consider only the 1st mode
 % Obtain the initial guess from the beta2 of a grating compressor.
 % This number should be close to the answer already.
 initial_guess = GVD_before_dechirping/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3) + focal_length;
