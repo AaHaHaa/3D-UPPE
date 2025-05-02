@@ -10,6 +10,10 @@
 %
 % This script employs the 3D-UPPE that uses full x-y dimension. For
 % more-efficient modeling, pelase see its radially-symmetric version.
+%
+% Current simulation bottleneck comes from the number of saved points per
+% propagation, which limits the max step size of the adaptive-dz scheme.
+% For testing, reduce "num_save" to improve the speed. 
 
 clearvars; close all;
 
@@ -58,8 +62,8 @@ n2_air = 0; % no nonlinearity
 %% Setup PLKM parameters
 num_plates = 12;
 Plate_thickness = 0.5e-3; % m
-Plate_spacing = 10.3e-3; % m
-D = 12e-3; % m; distance between the focal point and the first plate
+Plate_spacing = 10e-3; % m
+D = 12.7e-3; % m; distance between the focal point and the first plate
 
 plate_z = D;
 for i = 2:num_plates*2+1
@@ -80,7 +84,7 @@ initial_condition = build_3Dgaussian_xy(MFD0, spatial_window, tfwhm, time_window
 % =========================================================================
 % Start the simulation of PLKM
 % =========================================================================
-num_save = 50;
+num_save = 20;
 z_all = zeros(num_save,2*num_plates+1);
 MFD_all = zeros(num_save,2*num_plates+1);
 
@@ -171,7 +175,7 @@ close(exportVideo);
 %% Dechirping
 % Use the center field as the whole temporal profile for dechirping. This
 % ignores spatiotemporal coupling.
-output_mode_field = prop_output.field(:,1,1,end)*sqrt(pi*(MFD(end)/2*1e-3)^2);
+output_mode_field = prop_output.field(:,floor(Nx/2)+1,floor(Nx/2)+1,end)*sqrt(pi*(MFD(end)/2*1e-3)^2);
 
 theta_in = pi/6;
 wavelength0 = sim.lambda0*1e9;

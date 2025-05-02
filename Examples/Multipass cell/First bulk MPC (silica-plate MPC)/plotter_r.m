@@ -49,8 +49,9 @@ xlabel('z (cm)');
 title('Beam size evolution')
 
 subplot(2,2,4)
+r_idx = r*1e3 < MFD(end)/2;
 center_spectrum = spectrum(:,1,end);
-avg_spectrum = trapz(r,spectrum(:,:,end).*r,2);
+avg_spectrum = trapz(r(r_idx),spectrum(:,r_idx,end).*r(r_idx),2);
 avg_spectrum = avg_spectrum/max(avg_spectrum); % normalized
 center_spectrum = center_spectrum/max(center_spectrum); % normalized
 plot(lambda,avg_spectrum,'Color','b','linewidth',2);

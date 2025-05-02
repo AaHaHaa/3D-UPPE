@@ -4,6 +4,10 @@
 % Hanna et al., "Nonlinear temporal compression in multipass cells: theory," J. Opt. Soc. Am. B 34(7), 1340-1347 (2017)
 %
 % Gas-filled 3D-UPPE employs the radially-symmetric scheme of the UPPE code.
+%
+% Current simulation bottleneck comes from the number of saved points per
+% propagation, which limits the max step size of the adaptive-dz scheme.
+% For testing, reduce "num_save" to improve the speed.
 
 clearvars; close all;
 
@@ -23,21 +27,21 @@ FHATHA_energy_restoration = false; % don't enable constant operations of FHATHA'
 
 [r,kr,...
  dr,dkr,...
- l0,exp_prefactor,n2_prefactor,...
+ l0,exp_prefactor,r2_prefactor,...
  ifftQ] = FHATHA_info(Nr,r_max,kr_max);
 
 % Arrange required Hankel information into "sim" for radially-symmetric
 % UPPE to use later.
 sim.FHATHA = struct('r',r,'kr',kr,...
                     'dr',dr,'dkr',dkr,...
-                    'l0',l0,'exp_prefactor',exp_prefactor,'n2_prefactor',n2_prefactor,...
+                    'l0',l0,'exp_prefactor',exp_prefactor,'r2_prefactor',r2_prefactor,...
                     'ifftQ',ifftQ,...
                     'energy_restoration',FHATHA_energy_restoration);
 
 %% Setup simulation parameters
 sim.lambda0 = 1030e-9; % m; the center wavelength
 sim.photoionization_model = true;
-sim.gpuDevice.Index = 1; % choose which GPU to use if you have multiple GPUs: 1,2,3...
+sim.gpuDevice.Index = 2; % choose which GPU to use if you have multiple GPUs: 1,2,3...
 
 % Please check this function for details.
 [fiber,sim] = load_default_UPPE3D_propagate([],sim); % load default parameters
@@ -92,7 +96,7 @@ A0_H = 2*pi*FHATHA(squeeze(initial_condition.field(floor(Nt/2)+1,:,end)),...
                    r_max,...
                    r,kr,...
                    dr,dkr,...
-                   l0,exp_prefactor,n2_prefactor,...
+                   l0,exp_prefactor,r2_prefactor,...
                    ifftQ);
 fig_k = figure;
 plot(kr/1e3,abs(A0_H).^2,'linewidth',2,'Color','r');
@@ -145,7 +149,7 @@ for i = 1+(1:num_roundtrip*2)
                        r_max,...
                        r,kr,...
                        dr,dkr,...
-                       l0,exp_prefactor,n2_prefactor,...
+                       l0,exp_prefactor,r2_prefactor,...
                        ifftQ);
     fig_k = figure;
     plot(kr/1e3,abs(A0_H).^2,'linewidth',2,'Color','r');
@@ -185,9 +189,9 @@ for i = 1+(1:num_roundtrip*2)
 end
 
 % Movie
-implay(Frame(:),30);
+implay(Frame(:),num_save);
 exportVideo = VideoWriter('MPC_r');
-exportVideo.FrameRate = 30;
+exportVideo.FrameRate = num_save;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));
 close(exportVideo);
@@ -198,6 +202,6 @@ close(exportVideo);
 output_mode_field = prop_output.field(:,1,end)*sqrt(pi*(MFD(end)/2*1e-3)^2);
 
 theta_in = pi/6;
-wavelength0 = sim.lambda0*1e6;
+wavelength0 = sim.lambda0*1e9;
 grating_spacing = 1e-6;
 pulse_compressor( 'Treacy-t',theta_in,wavelength0,t,output_mode_field,grating_spacing,true );

@@ -59,15 +59,19 @@ for j = 1:size(A,3)-1
     ylim(plot_MFD_lim);
 
     subplot(2,2,[3,4]);
-    avg_spectrum = 2*pi*trapz(r,spectrum.*r,2); % nJ/nm
+    r_idx = r*1e3 < MFD(end)/2;
+    center_spectrum = spectrum(:,1);
+    avg_spectrum = trapz(r(r_idx),spectrum(:,r_idx).*r(r_idx),2);
+    avg_spectrum = avg_spectrum/max(avg_spectrum); % normalized
+    center_spectrum = center_spectrum/max(center_spectrum); % normalized
     plot(lambda,avg_spectrum,'Color','b','linewidth',2);
     hold on;
-    plot(lambda,spectrum(:,1)/max(spectrum(:,1))*max(avg_spectrum),'Color','r','linewidth',2);
+    plot(lambda,center_spectrum,'Color','r','linewidth',2);
     hold off;
     xlabel('Wavelength (nm)');
-    ylabel('PSD (nJ/nm)');
+    ylabel('PSD (norm.)');
     xlim(plot_wavelength_lim);
-    ylim([0,max(avg_spectrum)]);
+    ylim([0,1]);
     legend('Avg spectrum','Center spectrum (norm.)');
 
     set(fig,'Color',[1,1,1]);

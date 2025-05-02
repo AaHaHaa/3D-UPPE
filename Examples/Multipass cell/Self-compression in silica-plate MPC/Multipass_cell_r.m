@@ -8,6 +8,10 @@
 %
 % This script employs the radially-symmetric scheme of the UPPE code, 
 % rather than a full x-y dimension.
+%
+% Current simulation bottleneck comes from the number of saved points per
+% propagation, which limits the max step size of the adaptive-dz scheme.
+% For testing, reduce "num_save" to improve the speed.
 
 clearvars; close all;
 
@@ -27,14 +31,14 @@ FHATHA_energy_restoration = false; % don't enable constant operations of FHATHA'
 
 [r,kr,...
  dr,dkr,...
- l0,exp_prefactor,n2_prefactor,...
+ l0,exp_prefactor,r2_prefactor,...
  ifftQ] = FHATHA_info(Nr,r_max,kr_max);
 
 % Arrange required Hankel information into "sim" for radially-symmetric
 % UPPE to use later.
 sim.FHATHA = struct('r',r,'kr',kr,...
                     'dr',dr,'dkr',dkr,...
-                    'l0',l0,'exp_prefactor',exp_prefactor,'n2_prefactor',n2_prefactor,...
+                    'l0',l0,'exp_prefactor',exp_prefactor,'r2_prefactor',r2_prefactor,...
                     'ifftQ',ifftQ,...
                     'energy_restoration',FHATHA_energy_restoration);
 
@@ -42,10 +46,10 @@ sim.FHATHA = struct('r',r,'kr',kr,...
 sim.lambda0 = 1550e-9; % m; the center wavelength
 sim.gpuDevice.Index = 1; % choose which GPU to use if you have multiple GPUs: 1,2,3...
 
-fiber.material = 'silica'; % for finding the refractive index in UPPE3D_propagate()
+plate_material = 'silica'; % for finding the refractive index in UPPE3D_propagate()
 
 % Please check this function for details.
-[fiber,sim] = load_default_UPPE3D_propagate(fiber,sim); % load default parameters
+[fiber,sim] = load_default_UPPE3D_propagate([],sim); % load default parameters
 
 % Setup general parameters
 f = sim.f0+(-Nt/2:Nt/2-1)'/(Nt*dt); % THz
@@ -55,7 +59,7 @@ lambda = c./(f*1e12)*1e9; % nm
 
 %% Material properties
 % Sellmeier coefficients
-[a,b] = Sellmeier_coefficients(fiber.material);
+[a,b] = Sellmeier_coefficients(plate_material);
 % Calculate the index difference using the Sellmeier equation to generate n(lambda)
 Sellmeier_terms = @(lambda,a,b) a.*lambda.^2./(lambda.^2 - b.^2);
 n_from_Sellmeier = @(lambda) sqrt(1+sum(Sellmeier_terms(lambda,a,b),2));
@@ -99,7 +103,7 @@ initial_condition = build_3Dgaussian_r(MFD0, tfwhm, time_window, energy, Nt, r);
 % =========================================================================
 % Start the simulation of MPC
 % =========================================================================
-num_save = 30;
+num_save = 10;
 z_all = zeros(num_save,6*num_roundtrip+2);
 MFD_all = zeros(num_save,6*num_roundtrip+2);
 
@@ -107,8 +111,10 @@ Frame(num_save,6*num_roundtrip+1) = struct('cdata',[],'colormap',[]);
 
 %% Before hitting the first mirror
 fiber.L0 = MPC_length/2; % m
+fiber.material = 'air';
 fiber.n =  n_air;
 fiber.n2 = n2_air;
+sim.include_Raman = false; % Here I use just the solid scheme for "air" for simplicity
 
 sim.save_period = fiber.L0/num_save;
 
@@ -117,7 +123,7 @@ A0_H = 2*pi*FHATHA(squeeze(initial_condition.field(floor(Nt/2)+1,:,end)),...
                    r_max,...
                    r,kr,...
                    dr,dkr,...
-                   l0,exp_prefactor,n2_prefactor,...
+                   l0,exp_prefactor,r2_prefactor,...
                    ifftQ);
 fig_k = figure;
 plot(kr/1e3,abs(A0_H).^2,'linewidth',2,'Color','r');
@@ -168,16 +174,22 @@ for i = 1+(1:num_roundtrip*6)
     switch mod(i-1,6)
         case {0,1}
             fiber.L0 = MPC_length - silica_to_mirror - silica_thickness;
+            fiber.material = 'air';
             fiber.n = n_air; % air
             fiber.n2 = n2_air; % no nonlinearity
+            sim.include_Raman = false; % Here I use just the solid scheme for "air" for simplicity
         case {2,5}
             fiber.L0 = silica_thickness;
+            fiber.material = plate_material;
             fiber.n =  n_silica;
             fiber.n2 = n2_silica;
+            sim.include_Raman = true; % consider Raman in silica
         case {3,4}
             fiber.L0 = silica_to_mirror;
             fiber.n = n_air; % air
+            fiber.material = 'air';
             fiber.n2 = n2_air; % no nonlinearity
+            sim.include_Raman = false; % Here I use just the solid scheme for "air" for simplicity
     end
     
     sim.save_period = fiber.L0/num_save;
@@ -188,7 +200,7 @@ for i = 1+(1:num_roundtrip*6)
                        r_max,...
                        r,kr,...
                        dr,dkr,...
-                       l0,exp_prefactor,n2_prefactor,...
+                       l0,exp_prefactor,r2_prefactor,...
                        ifftQ);
     fig_k = figure;
     plot(kr/1e3,abs(A0_H).^2,'linewidth',2,'Color','r');
@@ -233,9 +245,9 @@ for i = 1+(1:num_roundtrip*6)
 end
 
 % Movie
-implay(Frame(:),30);
+implay(Frame(:),num_save);
 exportVideo = VideoWriter('MPC_r');
-exportVideo.FrameRate = 30;
+exportVideo.FrameRate = num_save;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));
 close(exportVideo);

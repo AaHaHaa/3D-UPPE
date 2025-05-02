@@ -45,18 +45,17 @@ for j = 1:size(A,4)-1
 
     subplot(2,2,[3,4]);
     spectrum = abs(fftshift(ifft(A(:,:,:,j+1),[],1),1)).^2*factor_correct_unit.*factor; % nJ/nm/m^2
-    % remove the weak spectral signal from spatial integration
-    multiplication_ratio = 3;
-    max_spectrum = max(spectrum(:));
-    spectrum = spectrum./max_spectrum; % make spectrum from 0-1
-    spectrum = spectrum.^multiplication_ratio*max_spectrum;
-    avg_spectrum = sum(spectrum,[2,3])*dx^2; % nJ/nm
+    xy_idx = (x.^2 + x'.^2)/1e3 < MFD(end)^2/4;
+    center_spectrum = spectrum(:,floor(Nx/2)+1,floor(Nx/2)+1);
+    avg_spectrum = sum(spectrum(:,xy_idx),2);
+    avg_spectrum = avg_spectrum/max(avg_spectrum); % normalized
+    center_spectrum = center_spectrum/max(center_spectrum); % normalized
     plot(lambda,avg_spectrum,'Color','b','linewidth',2);
     hold on;
-    plot(lambda,spectrum(:,floor(Nx/2)+1,floor(Nx/2)+1)/max(spectrum(:,floor(Nx/2)+1,floor(Nx/2)+1))*max(avg_spectrum),'Color','r','linewidth',2);
+    plot(lambda,center_spectrum,'Color','r','linewidth',2);
     hold off;
     xlabel('Wavelength (nm)');
-    ylabel('PSD (nJ/nm)');
+    ylabel('PSD (norm.)');
     xlim([950,1100]);
     ylim([0,max(avg_spectrum)]);
     legend('Avg spectrum','Center spectrum (norm.)');

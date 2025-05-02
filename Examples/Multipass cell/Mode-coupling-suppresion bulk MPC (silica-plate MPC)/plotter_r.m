@@ -1,14 +1,15 @@
 function fig = plotter_r(fig,...
                          A,...
                          z,MFD,...
+                         num_save,...
                          r,lambda)
 
 % Make them column vectors
 z = z(:);
 MFD = MFD(:);
 
-plot_wavelength_lim = [800,1300];
-plot_r_lim = [0,3500/2];
+plot_wavelength_lim = [850,1200];
+plot_r_lim = [0,1500/2];
 
 spectrum = abs(fftshift(ifft(A),1)).^2./lambda.^2; % "./lambda" is to make it into the wavelength domain (not with the correct unit but the correct relative strength; we'll normalize it later)
 
@@ -37,6 +38,13 @@ title('Beam output');
 
 subplot(2,2,3)
 plot(z*1e2,MFD*1e3,'Color','k','linewidth',2);
+hold on;
+for i = 1:length(MFD)/num_save
+    if ismember(mod(i-1,6),[2,5])
+        plot(z((i-1)*num_save:i*num_save)*1e2,MFD((i-1)*num_save:i*num_save)*1e3,'Color','r','linewidth',2);
+    end
+end
+hold off;
 xlabel('z (cm)');
 title('Beam size evolution')
 

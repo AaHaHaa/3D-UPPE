@@ -1,6 +1,7 @@
 function Frame = animator_r(Frame,...
                             A,...
                             z,MFD,start_idx,...
+                            num_save,...
                             Nt,dt,r,lambda,...
                             plate_z)
 
@@ -13,8 +14,8 @@ factor_correct_unit = (Nt*dt)^2/1e3; % to make the spectrum of the correct unit 
                                      % "/1e3" is to make pJ into nJ
 factor = c./lambda.^2; % change the spectrum from frequency domain into wavelength domain
 
-plot_wavelength_lim = [800,1300];
-plot_MFD_lim = [0,3500];
+plot_wavelength_lim = [850,1200];
+plot_MFD_lim = [0,1500];
 for j = 1:size(A,3)-1
     if exist('fig','var')
         figure(fig);
@@ -33,18 +34,24 @@ for j = 1:size(A,3)-1
     ylim([0,plot_MFD_lim(2)/2]);
 
     subplot(2,2,2);
-    plot(plate_z(1)*1e2*[1;1],plot_MFD_lim,'Color','b','linewidth',1.5);
+    %plot(plate_z(1)*1e2*[1;1],plot_MFD_lim,'Color','m','linewidth',0.3);
+    plot(plate_z(2)*1e2*[1;1],plot_MFD_lim,'Color','b','linewidth',1.5);
     hold on;
-    for i = 2:length(plate_z)
-        switch mod(i-1,2)
-            case 1
-                plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','m','linewidth',0.5);
-            case 0
+    for i = 3:length(plate_z)
+        switch mod(i-2,6)
+            case {1,2,4,5}
+                %plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','m','linewidth',0.5);
+            case {0,3}
                 plot(plate_z(i)*1e2*[1;1],plot_MFD_lim,'Color','b','linewidth',1.5);
         end
         hold on;
     end
     plot(z(1:start_idx+j)*1e2,MFD(1:start_idx+j)*1e3,'Color','k','linewidth',2);
+    for i = 1:length(MFD)/num_save
+        if ismember(mod(i-1,6),[2,5])
+            plot(z((i-1)*num_save:i*num_save)*1e2,MFD((i-1)*num_save:i*num_save)*1e3,'Color','r','linewidth',2);
+        end
+    end
     hold off;
     xlabel('z (cm)');
     ylabel('MFD (\mum)');
@@ -64,7 +71,7 @@ for j = 1:size(A,3)-1
     xlabel('Wavelength (nm)');
     ylabel('PSD (norm.)');
     xlim(plot_wavelength_lim);
-    ylim([0,1]);
+    ylim([0,max(avg_spectrum)]);
     legend('Avg spectrum','Center spectrum (norm.)');
 
     set(fig,'Color',[1,1,1]);
