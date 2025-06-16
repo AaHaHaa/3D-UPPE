@@ -148,10 +148,11 @@ if Nt == 1 % ignore Raman scattering under CW cases
     sim.include_Raman = false;
 end
 
-[fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
 if ~sim.include_Raman % no Raman
     fr = 0;
+    haw = 0; hbw = 0;
 else
+    [fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
     fr = fiber.fr;
 end
 

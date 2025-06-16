@@ -25,7 +25,11 @@ k = real(n).*k0;
 % Refractive index is separated into the space-invariant and variant parts.
 % The invariant part is taken as the averaged index experienced by the
 % field.
-nc = sum(abs(E_wr).^2.*n,[2,3])./sum(abs(E_wr).^2,[2,3]);
+if size(n,2) == 1 && size(n,3) == 1 % n is space-invariant only
+    nc = n;
+else
+    nc = sum(abs(E_wr).^2.*n,[2,3])./sum(abs(E_wr).^2,[2,3]);
+end
 kc = real(nc).*k0;
 
 % Below I set all indices smaller than 1 to 1.

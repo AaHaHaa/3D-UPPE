@@ -44,7 +44,7 @@ end
 % Get the numerical parameters from the initial condition.
 Nt = size(initial_condition.field,1);
 
-%% Call solid_info() to load gas parameters
+%% Call solid_info() to load solid parameters
 if ~solid.info_called
     [fiber,sim,solid] = solid_info(fiber,sim,solid);
 end
@@ -59,6 +59,17 @@ if sim.gpu_yes
 end
 
 %% Fourier-transform operators
+if sim.gpu_yes
+    sim.FHATHA.r = gpuArray(sim.FHATHA.r);
+    sim.FHATHA.kr = gpuArray(sim.FHATHA.kr);
+    sim.FHATHA.dr = gpuArray(sim.FHATHA.dr);
+    sim.FHATHA.dkr = gpuArray(sim.FHATHA.dkr);
+    sim.FHATHA.l0 = gpuArray(sim.FHATHA.l0);
+    sim.FHATHA.exp_prefactor = gpuArray(sim.FHATHA.exp_prefactor);
+    sim.FHATHA.r2_prefactor = gpuArray(sim.FHATHA.r2_prefactor);
+    sim.FHATHA.ifftQ = gpuArray(sim.FHATHA.ifftQ);
+end
+
 % Frequency space follow a different Fourier-transform convention from the mathematics
 % The convention of k space doesn't matter, so I pick the one that match the mathematics to be consistent with kz
 F_op = struct( 'Ff', @(x,n) ifft(x,n,1),...
@@ -67,14 +78,14 @@ F_op = struct( 'Ff', @(x,n) ifft(x,n,1),...
                                    max(sim.FHATHA.r),...
                                    sim.FHATHA.r,sim.FHATHA.kr,...
                                    sim.FHATHA.dr,sim.FHATHA.dkr,...
-                                   sim.FHATHA.l0,sim.FHATHA.exp_prefactor,sim.FHATHA.n2_prefactor,...
+                                   sim.FHATHA.l0,sim.FHATHA.exp_prefactor,sim.FHATHA.r2_prefactor,...
                                    sim.FHATHA.ifftQ,...
                                    E),...
               'iFk', @(x,E) FHATHA(x,... % inverse Hankel transform with FHATHA
                                    max(sim.FHATHA.kr),...
                                    sim.FHATHA.kr,sim.FHATHA.r,...
                                    sim.FHATHA.dkr,sim.FHATHA.dr,...
-                                   sim.FHATHA.l0,sim.FHATHA.exp_prefactor,sim.FHATHA.n2_prefactor,...
+                                   sim.FHATHA.l0,sim.FHATHA.exp_prefactor,sim.FHATHA.r2_prefactor,...
                                    sim.FHATHA.ifftQ,...
                                    E));
 
@@ -153,10 +164,11 @@ if Nt == 1 % ignore Raman scattering under CW cases
     sim.include_Raman = false;
 end
 
-[fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
 if ~sim.include_Raman % no Raman
     fr = 0;
+    haw = 0; hbw = 0;
 else
+    [fiber,haw,hbw] = solid_Raman_model(fiber,sim,Nt,dt);
     fr = fiber.fr;
 end
 

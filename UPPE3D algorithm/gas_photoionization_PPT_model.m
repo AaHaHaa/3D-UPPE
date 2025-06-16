@@ -46,7 +46,7 @@ conv_length = Nk + Nt - 1;
 smooth_kernel = F_op.Ff(smooth_kernel,conv_length);
 pulse_phase = F_op.Ff(pulse_phase,conv_length);
 pulse_phase = F_op.iFf(pulse_phase.*smooth_kernel,[]);
-pulse_phase = real(pulse_phase(floor(Nk/2) : end-floor(Nk/2),:));
+pulse_phase = real(pulse_phase(ceil(Nk/2) : end-floor(Nk/2),:));
 % conv() works for only a single-column vector
 %pulse_phase = conv(pulse_phase,ones(floor(Nt/100),1)/floor(Nt/100),'same'); 
 omega_pulse = -(pulse_phase(3:end,:)-pulse_phase(1:end-2,:))/(2*dt)+2*pi*f0; % THz; I use "central difference" to calculate the slope here

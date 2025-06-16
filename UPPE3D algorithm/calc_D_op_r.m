@@ -20,7 +20,11 @@ k = real(n).*k0; % consider only the refractive index (real part of "n")
 % Refractive index is separated into the space-invariant and variant parts.
 % The invariant part is taken as the averaged index experienced by the
 % field.
-nc = sum(abs(E_wr).^2.*n,2)./sum(abs(E_wr).^2,2);
+if size(n,2) == 1 % n is space-invariant only
+    nc = n;
+else
+    nc = sum(abs(E_wr).^2.*n,2)./sum(abs(E_wr).^2,2);
+end
 kc = real(nc).*k0;
 
 % Below I set all indices smaller than 1 to 1.
@@ -45,7 +49,7 @@ if ~isfield(sim,'betas')
         sim.betas = zeros(2,1,'gpuArray');
 
         % Obtain the betas of the input pulse
-        omega_range = 1/dt; % 2*pi*THz
+        omega_range = 2*pi/dt; % 2*pi*THz
         omegas_idx_near_pulse = fftshift_omegas>omega0-omega_range/5 & fftshift_omegas<omega0+omega_range/5;% pick only the data near the pulse center frequency to find its beta0 and beta1
         clear spectrum omega0 omega_range;
 
