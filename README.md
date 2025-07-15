@@ -18,7 +18,7 @@ It is useful for simulating solid-based or gas-filled multipass cell or multipla
 
 ## Fourier and Hankel transforms
 Since I've seen many misuse of Fourier Transform, I wrote [this tutorial](https://doi.org/10.48550/arXiv.2412.20698). Please take a look. Briefly speaking for one misuse, it's necessary to use MATLAB's `ifft` for Fourier Transform into the spectral domain.  
-In addition, I have improved and implemented a new numerical Hankel transform scheme based on FHATHA, which might be publishable to a small journal (but I'm lazy). I put it in this arXiv tutoial as well. You can take a look if interested.
+In addition, I have improved and implemented a new numerical Hankel transform scheme based on FHATHA, which might be publishable to a small journal (but I'm lazy). I put it in this arXiv tutorial as well. You can take a look if interested.
 
 ## How to activate CUDA for GPU computing in MATLAB:
 Typically MATLAB deals with this, but there are still come steps to follow before CUDA can really be used, especially when compiling .cu files to generate .ptx files. Below I show only steps for Windows. For linux, please search for their specific steps. I've never used Mac, so I cannot comment anything on this; some functions need to be revised for extended capabilities for Mac as far as I know.<br>
