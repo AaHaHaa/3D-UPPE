@@ -37,7 +37,7 @@ sim.FHATHA = struct('r',r,'kr',kr,...
 
 %% Setup fiber parameters
 sim.lambda0 = 1030e-9; % the center wavelength
-sim.gpuDevice.Index = 2;
+sim.gpuDevice.Index = 1;
 
 fiber.L0 = 0.002;
 num_save = 30;
@@ -199,9 +199,9 @@ Frame = pulsed_animator_r(prop_output.field,....
                           prop_output.z,MFD,...
                           Nt,dt,r,lambda,...
                           fiber.L0);
-implay(Frame(:),20);
+implay(Frame(:),num_save);
 exportVideo = VideoWriter('pulsed_self-focusing_noPhotoionization');
-exportVideo.FrameRate = 20;
+exportVideo.FrameRate = num_save;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));
 close(exportVideo);

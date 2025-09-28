@@ -372,7 +372,7 @@ if plot_yes
     shading interp; colormap(jet);
     cb = colorbar('location','south','Color','[1 1 1]');
     if log_yes
-        caxis([min_colormap_psd,0]);
+        clim([min_colormap_psd,0]);
     end
     %{
     if lambda_or_f

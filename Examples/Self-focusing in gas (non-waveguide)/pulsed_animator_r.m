@@ -35,7 +35,7 @@ for j = 1:size(A,3)
 
     subplot(2,2,[3,4]);
     spectrum = abs(fftshift(ifft(A(:,:,j),[],1),1)).^2*factor_correct_unit.*factor; % nJ/nm/m^2
-    r_idx = r*1e3 < MFD(end)/2;
+    r_idx = r*1e6 < MFD(j)/2;
     center_spectrum = spectrum(:,1);
     avg_spectrum = trapz(r(r_idx),spectrum(:,r_idx).*r(r_idx),2);
     avg_spectrum = avg_spectrum/max(avg_spectrum); % normalized

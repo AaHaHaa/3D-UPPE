@@ -165,9 +165,9 @@ for i = 1+(1:num_plates*2)
 end
 
 % Movie
-implay(Frame(:),20);
+implay(Frame(:),num_save);
 exportVideo = VideoWriter('PLKM_xy');
-exportVideo.FrameRate = 20;
+exportVideo.FrameRate = num_save;
 open(exportVideo);
 writeVideo(exportVideo, Frame(:));
 close(exportVideo);
