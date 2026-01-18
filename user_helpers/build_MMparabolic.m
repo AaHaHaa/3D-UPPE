@@ -45,6 +45,10 @@ if size(coeffs,2) == 1
 end
 coeffs = coeffs./sqrt(sum(abs(coeffs).^2)); % normalization
 
+%%
+upsampling_factor = 4;
+Nt = Nt*upsampling_factor;
+
 %% Parabolic fields
 % pulse power = B - A(t-t_center)^2
 C = tfwhm/sqrt(2); % C = sqrt(B/A)
@@ -58,6 +62,12 @@ t = (-floor(Nt/2):floor((Nt-1)/2))'*dt; % ps
 time_profile = sqrt(B - A*(t-t_center).^2);
 time_profile(t<t_center-C | t>t_center+C) = 0;
 
+%% Combine both
+time_profile = smooth(time_profile/max(time_profile),upsampling_factor*3);
+
+time_profile = time_profile/sqrt(trapz(t,abs(time_profile).^2)/1e3)*sqrt(total_energy);
+
+%% Finishing
 % Apply the frequency shift
 switch frequency_shift{1}
     case 'ifft'
@@ -73,6 +83,6 @@ end
 field = coeffs.*time_profile;
 
 % Output as a struct
-output = struct('fields',field,'dt',dt);
+output = struct('fields',field(1:upsampling_factor:end),'dt',dt*upsampling_factor);
 
 end
