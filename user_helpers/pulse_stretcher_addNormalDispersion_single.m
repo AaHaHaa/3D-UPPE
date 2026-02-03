@@ -1,4 +1,4 @@
-function [optimal_offcenter_l,stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = pulse_stretcher_addNormalDispersion( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R_or_f,varargin )
+function [stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = pulse_stretcher_addNormalDispersion_single( stretcher_type,offcenter_l,theta_in,wavelength0,time,field,grating_spacing,R_or_f,varargin )
 %PULSE_STRETCHER_ADDNORMALDISPERSION Find the optimum distances and the 
 %corresponding stretched field after the stretcher adds normal
 %dispersion
@@ -8,7 +8,8 @@ function [optimal_offcenter_l,stretched_field,grating_size,roof_mirror_size,size
 %                    double-Offner is the Offner stretcher with two gratings, one on-center and the other some distance away.
 %                        It features aberration-free.
 %                    Martinez is the common Martinez stretcher with two lenses
-%   desired_duration: desired pulse duration (ps)
+%   offcenter_l: For Offner type -> the offcenter distance of the grating
+%                For Martinez -> the distance between the grating and the lens
 %   theta_in: a scalar; For a grating pair, the incident angle on the grating (rad);
 %   wavelength0: a scalar; central wavelength (nm)
 %   time: (N,1); the time grid points (ps)
@@ -21,15 +22,10 @@ function [optimal_offcenter_l,stretched_field,grating_size,roof_mirror_size,size
 %
 %       verbose: display the result in the command window;
 %                true(1) or false(0) (default: false)
-%       global_opt: turn on global optimization to find the optimal compression;
-%                   This is necessary sometimes if the pulse is messy.
-%                   true(1) or false(0) (default: false)
 %       m: a scalar; the diffraction order (default: -1)
 %
 %   Output arguments:
 %
-%       optimal_offcenter_l: For Offner type -> the optimal offcenter distance of the grating
-%                            For Martinez -> the distance between the grating and the lens
 %       stretched_field: the stretched field
 %       grating_size: the size of the grating (m)
 %       roof_mirror_size: the size of the roof_mirror (m)
@@ -40,32 +36,33 @@ function [optimal_offcenter_l,stretched_field,grating_size,roof_mirror_size,size
 % =========================================================================
 % Use:
 %    Offner type:
-%      [optimal_offcenter,stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R )
-%      [optimal_offcenter,stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R,verbose )
-%      [optimal_offcenter,stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R,verbose,global_opt )
-%      [optimal_offcenter,stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R,verbose,global_opt,m )
+%      [stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R )
+%      [stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R,verbose )
+%      [stretched_field,grating_size,roof_mirror_size,concave_size,convex_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R,verbose,m )
 %    Martinez type:
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,global_opt )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,global_opt,m )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m )
 %
 
 if ~ismember(stretcher_type,{'single-Offner','double-Offner','Martinez'})
     error('The value of stretcher_type is wrong.');
 end
+if offcenter_l < 0
+    error('The offcenter/l input variable must be non-negative.');
+end
 
 % Default parameters
-optargs = {false false -1};
+optargs = {false -1};
 % Load paramters
 optargs(1:length(varargin)) = varargin;
-[verbose,global_opt,m] = optargs{:};
-[optimal_offcenter_l,stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = grating_pair(stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R_or_f,verbose,m,global_opt);
+[verbose,m] = optargs{:};
+[stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = grating_pair(stretcher_type,offcenter_l,theta_in,wavelength0,time,field,grating_spacing,R_or_f,verbose,m);
 
 end
 
 %%
-function [optimal_value,stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = grating_pair(stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,R_or_f,verbose,m,global_opt)
+function [stretched_field,grating_size,roof_mirror_size,size1,size2,recover_info] = grating_pair(stretcher_type,offcenter_l,theta_in,wavelength0,time,field,grating_spacing,R_or_f,verbose,m)
 %GRATING_PAIR
 
 N = length(time); % the number of time points
@@ -81,99 +78,25 @@ field_w = fftshift(ifft(field),1); % frequency domain
 % Find the center wavelength of the pulse spectrum with its second moment
 freq = c./wavelength; % THz
 freq_c = calc_f_c(freq,abs(field_w).^2);
-wavelength_c = c/freq_c;
+%wavelength_c = c/freq_c;
 wavelength = c./(freq+freq_c-c/wavelength0);
 field = field.*exp(1i*2*pi*(freq_c-c/wavelength0)*time);
 field_w = fftshift(ifft(field),1); % recompute the spectrum
 
 theta_out = asin( m*wavelength/(grating_spacing*1e9) + sin(theta_in) ); % the transmitted angle of the m-th order diffraction
 
-find_FWHM = @(s) calc_FWHM(stretcher_type,s,theta_in,theta_out,wavelength,time,field_w,grating_spacing,R_or_f,m);
-find_optimum_stretcher_distance = @(s) abs(find_FWHM(s) - desired_duration);
-
-t_fwhm = calc_RMS(time,abs(field).^2)*(2*sqrt(log(2))); % assume Gaussian shape
-omega_fwhm = calc_RMS(freq-freq_c,abs(field_w).^2)*2*pi*(2*sqrt(log(2))); % assume Gaussian shape
-guess_GVD = min(-(desired_duration-t_fwhm)/omega_fwhm*1e6/2,0);
-
-% Run the optimization process to find the optimal distance, offcenter for
-% Offner stretchers or l for Martinez stretcher
-% I assume that the dispersion equations are similar to Treacy grating
-% pairs.
-% -------------------------------------------------------------------------
-switch stretcher_type
-    case 'single-Offner'
-        min_distance = 0;
-        max_distance = R_or_f*0.9; % if it's R, the transmissive grating hits the convex mirror
-        initial_guess = -guess_GVD/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3); % no added dispersion at offcenter = 0
-    case 'double-Offner'
-        min_distance = 0;
-        max_distance = R_or_f*2*0.9; % if it's 2*R, the transmissive grating hits the concave mirror
-        initial_guess = -guess_GVD/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3); % no added dispersion at offcenter = 0
-    case 'Martinez'
-        min_distance = 0;
-        max_distance = R_or_f;
-        %initial_guess = max_distance; % no added dispersion at L=f
-        initial_guess = guess_GVD/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3) + R_or_f;
-end
-
-% This is the local optimization I used before which might be stuck at
-% local minimum if the pulse isn't smooth enough.
-option = optimset('TolX',1e-10);
-%option = optimset('PlotFcns',@optimplotfval,'TolX',1e-10); % plot the process of optimization
-[optimal_value1,feval1] = fminsearch(find_optimum_stretcher_distance,initial_guess,option);
-if feval1/desired_duration > 0.001 % sometimes it fails to find the optimum, so try to run with random initial guess again
-    [optimal_value1,feval1] = fminsearch(find_optimum_stretcher_distance,rand(1)*(max_distance-min_distance)+min_distance,option);
-end
-% Because fminsearch is an unconstrained method, I set the constrain below.
-if optimal_value1 < min_distance
-    optimal_value1 = min_distance;
-elseif optimal_value1 > max_distance
-    optimal_value1 = max_distance;
-end
-    
-% Global optimization
-if global_opt && abs(feval1/desired_duration) > 0.001
-    try
-        problem = createOptimProblem('fmincon',...
-            'objective',find_optimum_stretcher_distance,...
-            'x0',initial_guess,... % try with a different initial value
-            'lb',min_distance,'ub',max_distance,...
-            'options',optimoptions(@fmincon,'Display','off','TolX',1e-10));
-        gs = GlobalSearch('MaxTime',60,'NumTrialPoints',130,'NumStageOnePoints',20,'MaxWaitCycle',5,'Display','off');
-        %gs = MultiStart('MaxTime',120,'Display','off','UseParallel',true,'StartPointsToRun','bounds-ineqs');
-        %[optimal_offcenter2,feval2] = run(gs,problem,20);
-        [optimal_value2,feval2] = run(gs,problem);
-    catch % Sometimes "gs()" gives an error. I'll spend time solving it in the future. For now, it's skipped if an error occurs.
-        optimal_value2 = 0;
-        feval2 = inf;
-    end
-else
-    optimal_value2 = 0;
-    feval2 = inf;
-end
-
-if feval1 < feval2
-    optimal_value = optimal_value1;
-else
-    optimal_value = optimal_value2;
-end
-
 % The final stretched pulse
 switch stretcher_type
     case 'single-Offner'
-        [stretched_field,y,concave_leftmost,concave_rightmost,convex_size,added_phase] = single_Offner(0,optimal_value,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
+        [stretched_field,y,concave_leftmost,concave_rightmost,convex_size,added_phase] = single_Offner(0,offcenter_l,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
     case 'double-Offner'
-        [stretched_field,added_phase] = double_Offner(optimal_value,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
+        [stretched_field,added_phase] = double_Offner(offcenter_l,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
     case 'Martinez'
-        [stretched_field,lens1,lens2,grating,added_phase] = Martinez(optimal_value,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
+        [stretched_field,lens1,lens2,grating,added_phase] = Martinez(offcenter_l,theta_in,theta_out,wavelength,field_w,grating_spacing,R_or_f,m);
 end
 
-tol_range = 1e-3;
-if optimal_value < (min_distance+tol_range) || optimal_value > (max_distance-tol_range)
-    warning('The distance of the grating stretcher is too close to the edge of the distance range used in the optimization.');
-end
 if verbose
-    stretched_FWHM = calc_FWHM(stretcher_type,optimal_value,theta_in,theta_out,wavelength,time,field_w,grating_spacing,R_or_f,m);
+    stretched_FWHM = calc_FWHM(stretcher_type,offcenter_l,theta_in,theta_out,wavelength,time,field_w,grating_spacing,R_or_f,m);
     fprintf('Pulse duration after the stretcher = %6.4f(ps)\n',stretched_FWHM);
 end
 
@@ -197,7 +120,7 @@ switch stretcher_type
         grating_size = [grating_leftmost,grating_rightmost];
         roof_mirror_size = abs(diff(grating_size))*cos(theta_in);
     case 'double-Offner'
-        grating_size = max(optimal_value*tan(theta_out(considered_regime))) - min(optimal_value*tan(theta_out(considered_regime)));
+        grating_size = max(offcenter_l*tan(theta_out(considered_regime))) - min(offcenter_l*tan(theta_out(considered_regime)));
         concave_size = max(2*R_or_f*theta_out(considered_regime)) - min(2*R_or_f*theta_out(considered_regime));
         convex_size = concave_size/2;
         roof_mirror_size = grating_size*cos(theta_in);
@@ -212,9 +135,9 @@ end
 if verbose
     switch stretcher_type
         case {'single-Offner','double-Offner'}
-            show_result(stretcher_type,time,stretched_field,optimal_value,grating_size,roof_mirror_size,concave_size,convex_size);
+            show_result(stretcher_type,time,stretched_field,offcenter_l,grating_size,roof_mirror_size,concave_size,convex_size);
         case 'Martinez'
-            show_result(stretcher_type,time,stretched_field,optimal_value,grating_size,roof_mirror_size,lens1_size,lens2_size);
+            show_result(stretcher_type,time,stretched_field,offcenter_l,grating_size,roof_mirror_size,lens1_size,lens2_size);
     end
 end
 
@@ -510,7 +433,7 @@ end
 end
 
 %%
-function show_result(stretcher_type,time,stretched_field,optimal_value,grating_size,roof_mirror_size,size1,size2)
+function show_result(stretcher_type,time,stretched_field,offcenter_l,grating_size,roof_mirror_size,size1,size2)
 %SHOW_RESULT
 
 switch stretcher_type
@@ -548,7 +471,7 @@ set(gca,'fontsize',14);
 
 switch stretcher_type
     case 'single-Offner'
-        fprintf('Grating offcenter = %6.4f(cm)\n',optimal_value*100);
+        fprintf('Grating offcenter = %6.4f(cm)\n',offcenter_l*100);
         fprintf('(1) Light position on the grating = %6.4f ~ %6.4f(cm)\n',grating_size(1)*100,grating_size(2)*100);
         fprintf('--> Minimum size = %6.4f(cm)\n',(grating_size(2)-grating_size(1))*100);
         fprintf('(2) Light position on the concave mirror 1 = %6.4f ~ %6.4f(cm)\n',concave_size{1}(1)*100,concave_size{1}(2)*100);
@@ -558,13 +481,13 @@ switch stretcher_type
         fprintf('(4) Size of the convex mirror = %6.4f(cm)\n',convex_size*100);
         fprintf('(5) Size of the roof mirror = %6.4f(cm)\n',roof_mirror_size*100);
     case 'double-Offner'
-        fprintf('Grating separation = %6.4f(cm)\n',optimal_value*100);
+        fprintf('Grating separation = %6.4f(cm)\n',offcenter_l*100);
         fprintf('(1) Grating min. size = %6.4f(cm)\n',grating_size*100);
         fprintf('(2) Concave mirror min. size = %6.4f(cm)\n',concave_size*100);
         fprintf('(3) Convex mirror min. size = %6.4f(cm)\n',convex_size*100);
         fprintf('(4) Roof mirror min. size = %6.4f(cm)\n',roof_mirror_size*100);
     case 'Martinez'
-        fprintf('Grating to lens = %6.4f(cm)\n',optimal_value*100);
+        fprintf('Grating to lens = %6.4f(cm)\n',offcenter_l*100);
         fprintf('(1) Grating min. size = %6.4f(cm)\n',grating_size*100);
         fprintf('(2) Lens 1 min. size = %6.4f(cm)\n',lens1_size*100);
         fprintf('(3) Lens 2 min. size = %6.4f(cm)\n',lens2_size*100);

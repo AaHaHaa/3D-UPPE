@@ -1,4 +1,4 @@
-function [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,varargout] = pulse_stretcher_addAnomalousDispersion( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,varargin )
+function [stretched_field,added_GDD,grating_size,roof_mirror_size,varargout] = pulse_stretcher_addAnomalousDispersion_single( stretcher_type,separation_l,theta_in,wavelength0,time,field,grating_spacing,varargin )
 %PULSE_STRETCHER_ADDANOMALOUSDISPERSION Find the optimum distances and the 
 %corresponding stretched field after the stretcher adds anomalous
 %dispersion
@@ -7,7 +7,8 @@ function [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,var
 %                   'Treacy-r': reflective grating pair,
 %                   'Treacy-t': transmissive grating pair,
 %                   'Martinez' is the common Martinez stretcher with two lenses
-%   desired_duration: desired pulse duration (ps)
+%   separation_l: For Treacy type -> the offcenter distance of the grating
+%                 For Martinez -> the distance between the grating and the lens
 %   theta_in: a scalar; For a grating pair, the incident angle on the grating (rad);
 %   wavelength0: a scalar; central wavelength (nm)
 %   time: (N,1); the time grid points (ps)
@@ -22,15 +23,10 @@ function [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,var
 %
 %       verbose: display the result in the command window;
 %                true(1) or false(0) (default: false)
-%       global_opt: turn on global optimization to find the optimal compression;
-%                   This is necessary sometimes if the pulse is messy.
-%                   true(1) or false(0) (default: false)
 %       m: a scalar; the diffraction order (default: -1)
 %
 %   Output arguments:
 %
-%       optimal_separation_l: For Treacy type -> the optimal offcenter distance of the grating
-%                             For Martinez -> the distance between the grating and the lens
 %s      stretched_field: the stretched field
 %       grating_size: the size of the grating (m)
 %       roof_mirror_size: the size of the roof_mirror (m)
@@ -39,19 +35,20 @@ function [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,var
 % =========================================================================
 % Use:
 %    Treacy type:
-%      [optimal_separation,stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing )
-%      [optimal_separation,stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,verbose )
-%      [optimal_separation,stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,verbose,global_opt )
-%      [optimal_separation,stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,verbose,global_opt,m )
+%      [stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,separation,theta_in,wavelength0,time,field,grating_spacing )
+%      [stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,separation,theta_in,wavelength0,time,field,grating_spacing,verbose )
+%      [stretched_field,grating_size,roof_mirror_size,recover_info] = pulse_stretcher( stretcher_type,separation,theta_in,wavelength0,time,field,grating_spacing,verbose,m )
 %    Martinez type:
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,global_opt )
-%      [optimal_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,global_opt,m )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',l,theta_in,wavelength0,time,field,grating_spacing,focal_length )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',l,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose )
+%      [stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = pulse_stretcher( 'Martinez',l,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m )
 %
 
 if ~ismember(stretcher_type,{'Treacy-r','Treacy-t','Martinez'})
     error('The value of stretcher_type is wrong.');
+end
+if separation_l < 0
+    error('The separation/l input variable must be non-negative.');
 end
 
 focal_length = 0; % dummy variable if not Martinez stretcher
@@ -66,23 +63,23 @@ if isequal(stretcher_type,'Martinez')
 end
 
 % Default parameters
-optargs = {false false -1};
+optargs = {false -1};
 % Load paramters
 optargs(1:length(varargin)) = varargin;
-[verbose,global_opt,m] = optargs{:};
+[verbose,m] = optargs{:};
 switch stretcher_type
     case {'Treacy-r','Treacy-t'}
-        [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,recover_info] = grating_pair(stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m,global_opt);
+        [stretched_field,added_GDD,grating_size,roof_mirror_size,recover_info] = grating_pair(stretcher_type,separation_l,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m);
         varargout = {recover_info};
     case 'Martinez'
-        [optimal_separation_l,stretched_field,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = grating_pair(stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m,global_opt);
+        [stretched_field,added_GDD,grating_size,roof_mirror_size,lens1_size,lens2_size,recover_info] = grating_pair(stretcher_type,separation_l,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m);
         varargout = {lens1_size,lens2_size,recover_info};
 end
 
 end
 
 %%
-function [optimal_value,stretched_field,grating_size,roof_mirror_size,varargout] = grating_pair(stretcher_type,desired_duration,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m,global_opt)
+function [stretched_field,added_GDD,grating_size,roof_mirror_size,varargout] = grating_pair(stretcher_type,separation_l,theta_in,wavelength0,time,field,grating_spacing,focal_length,verbose,m)
 %GRATING_PAIR
 
 N = length(time); % the number of time points
@@ -105,13 +102,6 @@ field_w = fftshift(ifft(field),1); % recompute the spectrum
 
 theta_out = asin( m*wavelength/(grating_spacing*1e9) + sin(theta_in) ); % the transmitted angle of the m-th order diffraction
 
-find_FWHM = @(s) calc_FWHM(stretcher_type,s,theta_in,theta_out,wavelength,time,field_w,grating_spacing,focal_length,m);
-find_optimum_stretcher_distance = @(s) abs(find_FWHM(s) - desired_duration);
-
-t_fwhm = calc_RMS(time,abs(field).^2)*(2*sqrt(log(2))); % assume Gaussian shape
-omega_fwhm = calc_RMS(freq-freq_c,abs(field_w).^2)*2*pi*(2*sqrt(log(2))); % assume Gaussian shape
-guess_GDD = max((desired_duration-t_fwhm)/omega_fwhm*1e6/2,0);
-
 % Run the optimization process to find the optimal distance, grating 
 % separation for Treacy stretchers or l for Martinez stretcher
 % I assume that the dispersion equation of Martinez stretcher is similar to
@@ -119,66 +109,17 @@ guess_GDD = max((desired_duration-t_fwhm)/omega_fwhm*1e6/2,0);
 % -------------------------------------------------------------------------
 switch stretcher_type
     case {'Treacy-r','Treacy-t'}
-        min_separation_l = 0;
-        %initial_guess = 0;
-        initial_guess = guess_GDD/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3);
+        added_GDD = separation_l*2*(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3);
     case 'Martinez'
-        min_separation_l = focal_length;
-        %initial_guess = focal_length*1.1;
-        initial_guess = guess_GDD/2/(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3) + focal_length;
+        added_GDD = (separation_l-focal_length)*2*(m^2*wavelength_c^3/(2*pi*c^2*grating_spacing^2)*(1-(-m*(wavelength_c*1e-9)/grating_spacing-sin(theta_in))^2)^(-1.5)*1e-3);
 end
 
-% This is the local optimization I used before which might be stuck at
-% local minimum if the pulse isn't smooth enough.
-option = optimset('TolX',1e-20);
-%option = optimset('PlotFcns',@optimplotfval,'TolX',1e-20); % plot the process of optimization
-[optimal_value1,feval1] = fminsearch(find_optimum_stretcher_distance,initial_guess,option);
-% Because fminsearch is an unconstrained method, I set the constrain below.
-if optimal_value1 < 0
-    optimal_value1 = 0;
-end
-% Global optimization
-if global_opt && feval1/desired_duration > 0.001
-    try
-        problem = createOptimProblem('fmincon',...
-            'objective',find_optimum_stretcher_distance,...
-            'x0',initial_guess,... % try with a different initial value
-            'lb',min_separation_l,...
-            'options',optimoptions(@fmincon,'Display','off','TolX',1e-20));
-        gs = GlobalSearch('MaxTime',60,'NumTrialPoints',130,'NumStageOnePoints',20,'MaxWaitCycle',5,'Display','off');
-        %gs = MultiStart('MaxTime',120,'Display','off','UseParallel',true,'StartPointsToRun','bounds-ineqs');
-        %[optimal_offcenter2,feval2] = run(gs,problem,20);
-        [optimal_value2,feval2] = run(gs,problem);
-    catch % Sometimes "gs()" gives an error. I'll spend time solving it in the future. For now, it's skipped if an error occurs.
-        optimal_value2 = 0;
-        feval2 = inf;
-    end
-else
-    optimal_value2 = 0;
-    feval2 = inf;
-end
-
-if feval1 < feval2
-    optimal_value = optimal_value1;
-else
-    optimal_value = optimal_value2;
-end
-
-% The final stretched pulse
+% The stretched pulse
 switch stretcher_type
     case {'Treacy-r','Treacy-t'}
-        [stretched_field,y,added_phase] = Treacy(stretcher_type,optimal_value,theta_in,theta_out,wavelength,time,field_w,grating_spacing,m);
+        [stretched_field,y,added_phase] = Treacy(stretcher_type,separation_l,theta_in,theta_out,wavelength,time,field_w,grating_spacing,m);
     case 'Martinez'
-        [stretched_field,lens1,lens2,grating,added_phase] = Martinez(optimal_value,theta_in,theta_out,wavelength,field_w,grating_spacing,focal_length,m);
-end
-
-tol_range = 1e-3;
-if optimal_value < (min_separation_l+tol_range)
-    warning('The distance of the grating stretcher is too close to zero.');
-end
-if verbose
-    stretched_FWHM = calc_FWHM(stretcher_type,optimal_value,theta_in,theta_out,wavelength,time,field_w,grating_spacing,focal_length,m);
-    fprintf('Pulse duration after the stretcher = %6.4f(ps)\n',stretched_FWHM);
+        [stretched_field,lens1,lens2,grating,added_phase] = Martinez(separation_l,theta_in,theta_out,wavelength,field_w,grating_spacing,focal_length,m);
 end
 
 stretched_field_w = fftshift(ifft(stretched_field),1);
@@ -366,23 +307,6 @@ else % l can't be negative
     y = [];
     total_phase = zeros(size(wavelength));
 end
-
-end
-
-%%
-function FWHM = calc_FWHM(stretcher_type,separation_l,theta_in,theta_out,wavelength,time,field_w,grating_spacing,focal_length,m)
-%CALC_FWHM It finds the FWHM of the pulse
-
-switch stretcher_type
-    case {'Treacy-r','Treacy-t'}
-        field = Treacy(stretcher_type,separation_l,theta_in,theta_out,wavelength,time,field_w,grating_spacing,m);
-    case 'Martinez'
-        field = Martinez(separation_l,theta_in,theta_out,wavelength,field_w,grating_spacing,focal_length,m);
-end
-
-threshold = max(abs(field).^2)/1.0001;
-[~,~,FWHM,~] = findpeaks(abs(field).^2,time,'MinPeakHeight',threshold,'WidthReference','halfheight','MinPeakProminence',threshold/2);
-FWHM = FWHM(1); % just in case the pulse is stretched so badly that it has many peaks and is thus outputed many FWHMs
 
 end
 
