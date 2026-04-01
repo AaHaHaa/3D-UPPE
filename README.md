@@ -3,6 +3,11 @@ This is the shared package to simulate, with MATLAB, pulse propagation in bulk c
 
 It is useful for simulating solid-based or gas-filled multipass cell or multiplate compressor, etc.
 
+The code is intended **solely for academic use**, reproducibility, and methodological clarity.
+
+> [!CAUTION]
+> This repository is not under active development, as I finished my postdoc and am leaving academia.
+
 ## Capabilities:
 1. It solves the pulse propagation with a nested [RK4IP](http://www.sciencedirect.com/science/article/pii/S0010465512004262) (Runge-Kutta under the interaction picture). Please find details in the 3D-UPPE's readme.
 2. Adaptive step-size control is implemented (for the nested RK4IP).
